@@ -1,0 +1,28 @@
+{
+  "name": "Melomania Viva!",
+  "short_name": "Melomania",
+  "description": "Descubre nuevas bandas independientes de rock alternativo",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#9333ea",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/img/music-heart.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/img/skull.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["music", "entertainment"],
+  "lang": "es-ES",
+  "dir": "ltr",
+  "scope": "/"
+}
