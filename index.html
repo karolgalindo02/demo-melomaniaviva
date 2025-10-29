@@ -1,413 +1,617 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-<title>Melomania Viva!</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open Sans">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-h1,h2,h3,h4,h5,h6 {font-family: "Oswald"}
-body {font-family: "Open Sans"}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Melomania Viva!</title>
+  
+  <!-- PWA Meta Tags -->
+  <meta name="description" content="Descubre nuevas bandas independientes de rock alternativo">
+  <meta name="theme-color" content="#9333ea">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/img/music-heart.png">
+  
+  <!-- Apple PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Melomania">
+  <link rel="apple-touch-icon" href="/img/music-heart.png">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/custom.css">
 </head>
 
-<body class="w3-light-grey">
-  <body background="img/background.png">
-<!-- Navigation bar with social media icons --> 
-
-
-<div class="w3-bar w3-black w3-hide-small">
-  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-facebook-official"></i></a>
-  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-instagram"></i></a>
-  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-snapchat"></i></a>
-  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-github"></i></a>
-  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-twitter"></i></a>
-  <a href="#" class="w3-bar-item w3-button"><i class="fa fa-linkedin"></i></a>
-  <a href="#" class="w3-bar-item w3-button w3-right"><i class="fa fa-headphones"></i></a>
-  <link rel="shortcut icon" href="img/music-heart.png">
-</div>
+<body class="bg-gray-50 text-gray-900">
   
-<!-- w3-content defines a container for fixed size centered content, 
-and is wrapped around the whole page content, except for the footer in this example -->
-<div class="w3-content" style="max-width:1600px">
-
-  <!-- Header -->
-  <header class="w3-container w3-center w3-padding-48 w3-white">
-    <h1 class="w3-xxxlarge"><img class="w3-image" src="img/skull.png" alt="logo" widht="500" height="500"><b>Melomania Viva!</b></h1>
-    <h6>Conoce nuevas <span class="w3-tag">Bandas Independientes</span></h6>
-  </header>
-
-  <!-- Image header -->
-  <header class="w3-display-container w3-wide" id="home">
-    <img class="w3-image" src="img/banner.jpg" alt="banner-toque-distimia" width="1600" height="1060">
-    <div class="w3-display-left w3-padding-large">
-      <h1 class="w3-text-white"><span class="w3-tag">Indie Rock</span></h1>
-      <h1 class="w3-jumbo w3-text-white w3-hide-small"><span class="w3-tag">Reseñas</span></h1>
-      <h6><button class="w3-button w3-white w3-padding-large w3-large w3-opacity w3-hover-opacity-off" onclick="document.getElementById('subscribe').style.display='block'">INGRESAR</button></h6>
+  <!-- Social Media Navigation Bar -->
+  <nav class="bg-black text-white hidden md:flex items-center justify-between px-4 py-2">
+    <div class="flex items-center space-x-2">
+      <a href="#" class="hover:text-purple-400 transition"><i class="fa fa-facebook-official"></i></a>
+      <a href="#" class="hover:text-purple-400 transition"><i class="fa fa-instagram"></i></a>
+      <a href="#" class="hover:text-purple-400 transition"><i class="fa fa-snapchat"></i></a>
+      <a href="#" class="hover:text-purple-400 transition"><i class="fa fa-github"></i></a>
+      <a href="#" class="hover:text-purple-400 transition"><i class="fa fa-twitter"></i></a>
+      <a href="#" class="hover:text-purple-400 transition"><i class="fa fa-linkedin"></i></a>
     </div>
-  </header>
+    <div class="flex items-center space-x-4">
+      <div id="userInfo" class="hidden"></div>
+      <button id="loginBtn" onclick="toggleModal('loginModal')" class="hover:text-purple-400 transition">
+        <i class="fa fa-user"></i> Ingresar
+      </button>
+      <a href="#" class="hover:text-purple-400 transition"><i class="fa fa-headphones"></i></a>
+    </div>
+  </nav>
 
-  <!-- Grid -->
-  <div class="w3-row w3-padding w3-border">
-
-    <!-- Blog entries -->
-    <div class="w3-col l8 s20">
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto">
     
-      <!-- Blog entry -->
-      <div class="w3-container w3-black w3-margin w3-padding-large">
-        <div class="w3-center">
-          <h3>Distimia Agorafóbica</h3>
-          <h5>Agrupación Independiente de Bogotá
-              <span class="w3-opacity"> (Rock Alternativo)</span>
-          </h5>
-        </div>
+    <!-- Header -->
+    <header class="bg-white text-center py-12 px-4">
+      <div class="flex justify-center items-center mb-4">
+        <img src="/img/skull.png" alt="logo" class="w-24 h-24">
+      </div>
+      <h1 class="text-5xl md:text-6xl font-bold mb-2">Melomania Viva!</h1>
+      <h6 class="text-gray-600">Conoce nuevas <span class="bg-purple-600 text-white px-3 py-1 rounded">Bandas Independientes</span></h6>
+    </header>
 
-        <div class="w3-justify">
-          <img src="/img/distimia-agorafobica.jpg" alt="banda-distimia-agorafobica" style="width:100%" class="w3-padding-16">
-          <p><strong> Distimia Agorafóbica</strong> es una agrupación independiente de Bogotá compuesta por cuatro integrantes Cristian Garzón en la voz, la guitarra ritmica y la composición, Mateo Morales en los coros y la guitarra melodica, Heiber Fernandez en la bateria y Carlos Bonilla en el bajo, en 2018 sacarón su primer EP "Afuegias" caracterizado por un sonido muy melancólico, explorando tematicas como el desamor y la tusa.
-
-            En canciones como cayendo y agorafobia definen el concepto de la banda, su contenido musical hace referencia a problemas emocionales, afecciones mentales y la juventud.
-            
-            Sus toques en vivo invitan a entrar en un estado terapéutico para expresar las emociones a través de su música, en su albúm Recaer tienen influencias literarias y una muy buena dirección de arte, la guitarra nos guía por todo el ruido blanco hasta antes de tocar fondo, tambien hay elementos soniricos que crean un entorno mágico.</p>
-          <p class="w3-left"><button class="w3-button w3-white w3-border" onclick="likeFunction(this)"><b><i class="fa fa-thumbs-up"></i> Like</b></button></p>
-          <p class="w3-right"><button class="w3-button w3-black" onclick="myFunction('demo1')" id="myBtn"><b>Escucha  </b> <span class="w3-tag w3-white">1</span></button></p>
-          <p class="w3-clear"></p>
-          <div class="w3-row w3-margin-bottom" id="demo1" style="display:none">
-            <hr>
-              <div class="w3-col l2 m3" class="w3-dark-gray">
-                <img src="img/d-album2.jpg" style="width:90px;">
-              </div>
-              <div class="w3-col l10 m9">
-                <h4>Desespero <span class="w3-opacity w3-medium">Recaer</span></h4>
-                <p><i>"Esta es nuestra propuesta, hecha con mucho amor y cariño a pesar de lo cínicos que somos"</i> Puedes encontrar más de su música: <a href="https://distimiagorafobica.bandcamp.com/album/afugias" target="_blank" class="w3-purple">aquí</a></p>
-                <audio controls>
-                  <source src="music/desespero.mp3" type="audio/mp3">
-                      Tu navegador no soporta audio HTML5.
-                </audio>
-              </div>
-          </div>
+    <!-- Hero Image Banner -->
+    <section class="relative w-full h-96 bg-cover bg-center" style="background-image: url('/img/banner.jpg');">
+      <div class="absolute inset-0 bg-black bg-opacity-40 flex items-center">
+        <div class="px-8">
+          <h1 class="text-white mb-2"><span class="bg-purple-600 px-4 py-2 rounded-lg text-2xl">Indie Rock</span></h1>
+          <h1 class="text-white text-5xl font-bold mb-4 hidden md:block"><span class="bg-purple-600 px-6 py-3 rounded-lg">Reseñas</span></h1>
+          <button onclick="toggleModal('loginModal')" class="bg-white hover:bg-gray-100 text-black font-semibold px-8 py-3 rounded-lg transition">
+            INGRESAR
+          </button>
         </div>
       </div>
-      <hr>
+    </section>
 
-      <!-- Blog entry -->
-      <div class="w3-container w3-grey w3-margin w3-padding-large">
-        <div class="w3-center">
-          <h3>Margarita Siempre Viva</h3>
-          <h5>Banda independiente de Medellin<span class="w3-opacity"> (Rock Alternativo, Reverblove) </span></h5>
-        </div>
-
-        <div class="w3-justify">
-          <img src="img/margarita-siempre-viva.jpg" alt="banda-margarita-siempre-viva" style="width:100%" class="w3-padding-16">
-          <p><strong>Margarita Siempre Viva</strong>  (Revelación del rock colombiano)</p>
-          <p>Para los días fríos y un poco melancólicos, Margarita Siempre Viva, trae su propuesta musical compuesta por una amalgama de sonidos con base en el post-punk, rock, indie, shoegaze y producción lo-fi.
-            Desde el 2016 vienen construyendo una personalidad inconfundible en la escena musical alternativa. Se consolidaron como banda en Medellín</p>
-          <p class="w3-left"><button class="w3-button w3-white w3-border" onclick="likeFunction(this)"><b><i class="fa fa-thumbs-up"></i> Like</b></button></p>
-          <p class="w3-right"><button class="w3-button w3-black" onclick="myFunction('demo2')"><b>Escucha  </b> <span class="w3-tag w3-white">1</span></button></p>
-          <p class="w3-clear"></p>
-          <hr>
-
-<!-- Recommendations space -->
-          <div id="demo2" style="display:none">
-            <hr>
-            <div class="w3-row w3-margin-bottom">
-              <div class="w3-col l2 m3">
-                <img src="img/album4.jpg" style="width:90px;">
-              </div>
-              <div class="w3-col l10 m9">
-                <h4>Techo de Astros y Truenos: Fenómenos <span class="w3-opacity w3-medium">Primavera Febril</span></h4>
-                <p><i>-Uno de sus gestos más representativos es regalar margaritas a los espectadores que van a escuchar sus toques-</i> Puedes encontrar más de su música: <a href="https://soundcloud.com/margaritasiempreviva" target="_blank" class="w3-purple">aquí</a></p>
-                <audio controls>
-                  <source src="music/techo-de-astros.mp3" type="audio/mp3">
-                      Tu navegador no soporta audio HTML5.
-                </audio>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 mt-6">
       
-      <!-- Blog entry -->
-      <div class="w3-container w3-black w3-margin w3-padding-large">
-        <div class="w3-center">
-          <h3>Nicolas y Los Fumadores</h3>
-          <h5>Banda Independiente de Bogotá<span class="w3-opacity"> (Alternativo, Indie-rock) </span></h5>
-        </div>
+      <!-- Left Column - Main Content (2/3 width) -->
+      <div class="lg:col-span-2 space-y-6">
+        
+        <!-- Toques Recientes (New Section) -->
+        <section class="bg-white rounded-lg shadow-lg p-6">
+          <h2 class="text-3xl font-bold mb-4 flex items-center">
+            <i class="fa fa-calendar mr-2 text-purple-600"></i>
+            Toques Recientes
+          </h2>
+          <div id="recentEventsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Events will be loaded dynamically -->
+          </div>
+        </section>
 
-        <div class="w3-justify">
-          <img src="img/nicolas-y-los-fumadores.jpg" alt="banda-nicolas-y-los-fumadores" style="width:100%" class="w3-padding-16">
-          <p><strong>Nicolas y Los Fumadores</strong>  (La tragicómica del rock citadino)</p>
-          <p>Es una banda que aprendió a reírse de sí misma, de la mala suerte y del desamor, donde inexorablemente quien los escuche honestamente se sentirá identificado. Si el nombre ‘Los Fumadores’ hace referencia a la afición casi idílica, de sus integrantes por los cigarrillos, podemos decir que, escuchando su música, se siente la ansiedad de oír canción tras canción, como quien prende un cigarrillo tras otro, pues entre los amigos de la soledad, el cigarrillo es el más fiel.
-            Las influencias de Nicolás y Los Fumadores van desde el grunge y el post-punk a la música colombiana de Edson Velandia y Los Elefantes, pasando por los íconos del rock argentino: Luis Alberto Spinetta y Gustavo Ceratti.</p>
-            <p class="w3-left"><button class="w3-button w3-white w3-border" onclick="likeFunction(this)"><b><i class="fa fa-thumbs-up"></i> Like</b></button></p>
-            <p class="w3-right"><button class="w3-button w3-black" onclick="myFunction('demo3')" id="myBtn"><b>Escucha  </b> <span class="w3-tag w3-white">1</span></button></p>
-            <p class="w3-clear"></p>
-            <hr>
-
-<!-- Recommendations space -->
-              <div id="demo3" style="display:none">
-                <hr>              
-              <div class="w3-row w3-margin-bottom">
-                <div class="w3-col l2 m3">
-                  <img src="img/n-album3.jpeg" style="width:90px;">
-                </div>
-                <div class="w3-col l10 m9">
-
-                  <h4>Bailando Triste <span class="w3-opacity w3-medium">Como Pez en el Hielo</span></h4>
-                  <p><i>En este disco, se hacen referencias a elementos del día a día en Bogotá narra desde la ensoñación y el absurdo.</i> Puedes encontrar más de su música: <a href="https://los-fumadores.bandcamp.com/album/como-pez-en-el-hielo" target="_blank" class="w3-purple">aquí</a></p>
-                  <audio controls>
-                    <source src="music/bailando-triste.mp3" type="audio/mp3">
-                        Tu navegador no soporta audio HTML5.
+        <!-- Noticias (New Section) -->
+        <section class="bg-white rounded-lg shadow-lg p-6">
+          <h2 class="text-3xl font-bold mb-4 flex items-center">
+            <i class="fa fa-newspaper-o mr-2 text-purple-600"></i>
+            Noticias
+          </h2>
+          <div id="newsContainer">
+            <!-- News will be loaded dynamically -->
+          </div>
+        </section>
+        
+        <!-- Band: Distimia Agorafóbica -->
+        <article class="bg-black text-white rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6">
+            <div class="text-center mb-6">
+              <h3 class="text-3xl font-bold">Distimia Agorafóbica</h3>
+              <h5 class="text-gray-300 mt-2">Agrupación Independiente de Bogotá <span class="text-gray-400">(Rock Alternativo)</span></h5>
+            </div>
+            
+            <img src="/img/distimia-agorafobica.jpg" alt="banda-distimia-agorafobica" class="w-full rounded-lg mb-4">
+            
+            <p class="text-gray-200 mb-4 leading-relaxed">
+              <strong>Distimia Agorafóbica</strong> es una agrupación independiente de Bogotá compuesta por cuatro integrantes Cristian Garzón en la voz, la guitarra ritmica y la composición, Mateo Morales en los coros y la guitarra melodica, Heiber Fernandez en la bateria y Carlos Bonilla en el bajo, en 2018 sacarón su primer EP "Afuegias" caracterizado por un sonido muy melancólico, explorando tematicas como el desamor y la tusa.
+            </p>
+            <p class="text-gray-200 mb-4 leading-relaxed">
+              En canciones como cayendo y agorafobia definen el concepto de la banda, su contenido musical hace referencia a problemas emocionales, afecciones mentales y la juventud. Sus toques en vivo invitan a entrar en un estado terapéutico para expresar las emociones a través de su música, en su albúm Recaer tienen influencias literarias y una muy buena dirección de arte.
+            </p>
+            
+            <div class="flex items-center justify-between mt-6">
+              <button onclick="likeBand('distimia')" data-band-id="distimia" class="like-btn bg-white text-black hover:bg-gray-100 px-4 py-2 rounded transition">
+                <i class="fa fa-heart-o"></i> Me gusta
+              </button>
+              <button onclick="toggleBlogSection('demo1')" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition">
+                Escucha <span class="bg-white text-black px-2 py-1 rounded ml-2">1</span>
+              </button>
+            </div>
+            
+            <!-- Music Player Section -->
+            <div id="demo1" class="hidden mt-6 pt-6 border-t border-gray-700">
+              <div class="flex flex-col md:flex-row gap-4">
+                <img src="/img/d-album2.jpg" class="w-32 h-32 rounded-lg">
+                <div class="flex-1">
+                  <h4 class="text-xl font-bold">Desespero <span class="text-gray-400">- Recaer</span></h4>
+                  <p class="text-gray-300 text-sm mb-3">
+                    <i>"Esta es nuestra propuesta, hecha con mucho amor y cariño a pesar de lo cínicos que somos"</i><br>
+                    Puedes encontrar más de su música: <a href="https://distimiagorafobica.bandcamp.com/album/afugias" target="_blank" class="text-purple-400 hover:text-purple-300">aquí</a>
+                  </p>
+                  <audio controls class="w-full">
+                    <source src="/music/desespero.mp3" type="audio/mp3">
+                    Tu navegador no soporta audio HTML5.
                   </audio>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-          
-      
-      <!-- Blog entry -->
-      <div class="w3-container w3-grey w3-margin w3-padding-large">
-        <div class="w3-center">
-          <h3>La Hermanastra Más Fea</h3>
-          <h5>Banda Underground de Bogotá<span class="w3-opacity"> (Screamo, Punk, Math rock) </span></h5>
-        </div>
-
-        <div class="w3-justify">
-          <img src="img/lhmf2.jpg" alt="banda-la-hermanastra-mas-fea" style="width:100%" class="w3-padding-16">
-          <p><strong>La Hermanastra más Fea</strong>  (Tiembla el Under por esta banda)</p>
-          <p>Uno de los grupos que se han salido de la zona de confort del indie y le han apostado a los riff de guitarras pesados, a las baterías resonantes y mezclas que lo obligan a uno a meterse, como si no hubiera mañana, en un pogo profundo y violento.
-            Aunque llevan algún tiempo dedicados al proyecto, aún no tienen muy claro los géneros que hacen y viven en una mezcla constante entre hardcore, emo, punk y la cumbia; esta última solo porque es divertido tocarla, sin embargo, no es que sea su género favorito.</p>
-            <p class="w3-left"><button class="w3-button w3-white w3-border" onclick="likeFunction(this)"><b><i class="fa fa-thumbs-up"></i> Like</b></button></p>
-            <p class="w3-right"><button class="w3-button w3-black" onclick="myFunction('demo4')" id="myBtn"><b>Escucha  </b> <span class="w3-tag w3-white">1</span></button></p>
-            <p class="w3-clear"></p>
-            <hr>
-
-<!-- Recommendations space -->
-              <div id="demo4" style="display:none">
-                <hr>              
-              <div class="w3-row w3-margin-bottom">
-                <div class="w3-col l2 m3">
-                  <img src="img/lhmf-album3.jpg" style="width:90px;">
+              
+              <!-- Comments Section -->
+              <div class="mt-6 pt-6 border-t border-gray-700">
+                <h4 class="text-xl font-bold mb-4"><i class="fa fa-comments mr-2"></i>Comentarios</h4>
+                <div id="comments-distimia" class="mb-4">
+                  <!-- Comments loaded dynamically -->
                 </div>
-                <div class="w3-col l10 m9">
-                  <h4>Costa <span class="w3-opacity w3-medium">Diferencias Creativas Irreconciliables</span></h4>
-                  <p><i>En el toque donde presentaron este albúm "Destruye y construye", desbordaron emocionalidad con el performance y el ruido de las guitarras. </i> Puedes encontrar más de su música: <a href="https://lahermanastramasfea.bandcamp.com" target="_blank" class="w3-purple">aquí</a></p>
-                  <audio controls>
-                      <source src="music/casa-nueva.mp3" type="audio/mp3">
-                          Tu navegador no soporta audio HTML5.
-                    </audio>
+                <div class="flex gap-2">
+                  <input type="text" id="comment-input-distimia" placeholder="Escribe un comentario..." class="flex-1 px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-purple-500">
+                  <button onclick="addComment('distimia')" class="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded transition">
+                    Enviar
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+        </article>
+
+        <!-- Band: Margarita Siempre Viva -->
+        <article class="bg-gray-200 text-gray-900 rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6">
+            <div class="text-center mb-6">
+              <h3 class="text-3xl font-bold">Margarita Siempre Viva</h3>
+              <h5 class="text-gray-700 mt-2">Banda independiente de Medellin <span class="text-gray-600">(Rock Alternativo, Reverblove)</span></h5>
+            </div>
+            
+            <img src="/img/margarita-siempre-viva.jpg" alt="banda-margarita-siempre-viva" class="w-full rounded-lg mb-4">
+            
+            <p class="text-gray-800 mb-4 leading-relaxed">
+              <strong>Margarita Siempre Viva</strong> (Revelación del rock colombiano)
+            </p>
+            <p class="text-gray-800 mb-4 leading-relaxed">
+              Para los días fríos y un poco melancólicos, Margarita Siempre Viva, trae su propuesta musical compuesta por una amalgama de sonidos con base en el post-punk, rock, indie, shoegaze y producción lo-fi. Desde el 2016 vienen construyendo una personalidad inconfundible en la escena musical alternativa. Se consolidaron como banda en Medellín.
+            </p>
+            
+            <div class="flex items-center justify-between mt-6">
+              <button onclick="likeBand('margarita')" data-band-id="margarita" class="like-btn bg-black text-white hover:bg-gray-800 px-4 py-2 rounded transition">
+                <i class="fa fa-heart-o"></i> Me gusta
+              </button>
+              <button onclick="toggleBlogSection('demo2')" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded transition">
+                Escucha <span class="bg-white text-black px-2 py-1 rounded ml-2">1</span>
+              </button>
+            </div>
+            
+            <div id="demo2" class="hidden mt-6 pt-6 border-t border-gray-400">
+              <div class="flex flex-col md:flex-row gap-4">
+                <img src="/img/album4.jpg" class="w-32 h-32 rounded-lg">
+                <div class="flex-1">
+                  <h4 class="text-xl font-bold">Techo de Astros y Truenos: Fenómenos <span class="text-gray-600">- Primavera Febril</span></h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    <i>-Uno de sus gestos más representativos es regalar margaritas a los espectadores que van a escuchar sus toques-</i><br>
+                    Puedes encontrar más de su música: <a href="https://soundcloud.com/margaritasiempreviva" target="_blank" class="text-purple-600 hover:text-purple-700">aquí</a>
+                  </p>
+                  <audio controls class="w-full">
+                    <source src="/music/techo-de-astros.mp3" type="audio/mp3">
+                    Tu navegador no soporta audio HTML5.
+                  </audio>
+                </div>
+              </div>
+              
+              <div class="mt-6 pt-6 border-t border-gray-400">
+                <h4 class="text-xl font-bold mb-4"><i class="fa fa-comments mr-2"></i>Comentarios</h4>
+                <div id="comments-margarita" class="mb-4"></div>
+                <div class="flex gap-2">
+                  <input type="text" id="comment-input-margarita" placeholder="Escribe un comentario..." class="flex-1 px-4 py-2 rounded border border-gray-400 focus:outline-none focus:border-purple-500">
+                  <button onclick="addComment('margarita')" class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded transition">
+                    Enviar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Band: Nicolas y Los Fumadores -->
+        <article class="bg-black text-white rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6">
+            <div class="text-center mb-6">
+              <h3 class="text-3xl font-bold">Nicolas y Los Fumadores</h3>
+              <h5 class="text-gray-300 mt-2">Banda Independiente de Bogotá <span class="text-gray-400">(Alternativo, Indie-rock)</span></h5>
+            </div>
+            
+            <img src="/img/nicolas-y-los-fumadores.jpg" alt="banda-nicolas-y-los-fumadores" class="w-full rounded-lg mb-4">
+            
+            <p class="text-gray-200 mb-4 leading-relaxed">
+              <strong>Nicolas y Los Fumadores</strong> (La tragicómica del rock citadino)
+            </p>
+            <p class="text-gray-200 mb-4 leading-relaxed">
+              Es una banda que aprendió a reírse de sí misma, de la mala suerte y del desamor, donde inexorablemente quien los escuche honestamente se sentirá identificado. Las influencias de Nicolás y Los Fumadores van desde el grunge y el post-punk a la música colombiana de Edson Velandia y Los Elefantes, pasando por los íconos del rock argentino: Luis Alberto Spinetta y Gustavo Ceratti.
+            </p>
+            
+            <div class="flex items-center justify-between mt-6">
+              <button onclick="likeBand('nicolas')" data-band-id="nicolas" class="like-btn bg-white text-black hover:bg-gray-100 px-4 py-2 rounded transition">
+                <i class="fa fa-heart-o"></i> Me gusta
+              </button>
+              <button onclick="toggleBlogSection('demo3')" class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded transition">
+                Escucha <span class="bg-white text-black px-2 py-1 rounded ml-2">1</span>
+              </button>
+            </div>
+            
+            <div id="demo3" class="hidden mt-6 pt-6 border-t border-gray-700">
+              <div class="flex flex-col md:flex-row gap-4">
+                <img src="/img/n-album3.jpeg" class="w-32 h-32 rounded-lg">
+                <div class="flex-1">
+                  <h4 class="text-xl font-bold">Bailando Triste <span class="text-gray-400">- Como Pez en el Hielo</span></h4>
+                  <p class="text-gray-300 text-sm mb-3">
+                    <i>En este disco, se hacen referencias a elementos del día a día en Bogotá narra desde la ensoñación y el absurdo.</i><br>
+                    Puedes encontrar más de su música: <a href="https://los-fumadores.bandcamp.com/album/como-pez-en-el-hielo" target="_blank" class="text-purple-400 hover:text-purple-300">aquí</a>
+                  </p>
+                  <audio controls class="w-full">
+                    <source src="/music/bailando-triste.mp3" type="audio/mp3">
+                    Tu navegador no soporta audio HTML5.
+                  </audio>
+                </div>
+              </div>
+              
+              <div class="mt-6 pt-6 border-t border-gray-700">
+                <h4 class="text-xl font-bold mb-4"><i class="fa fa-comments mr-2"></i>Comentarios</h4>
+                <div id="comments-nicolas" class="mb-4"></div>
+                <div class="flex gap-2">
+                  <input type="text" id="comment-input-nicolas" placeholder="Escribe un comentario..." class="flex-1 px-4 py-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-purple-500">
+                  <button onclick="addComment('nicolas')" class="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded transition">
+                    Enviar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Band: La Hermanastra Más Fea -->
+        <article class="bg-gray-200 text-gray-900 rounded-lg shadow-lg overflow-hidden">
+          <div class="p-6">
+            <div class="text-center mb-6">
+              <h3 class="text-3xl font-bold">La Hermanastra Más Fea</h3>
+              <h5 class="text-gray-700 mt-2">Banda Underground de Bogotá <span class="text-gray-600">(Screamo, Punk, Math rock)</span></h5>
+            </div>
+            
+            <img src="/img/lhmf2.jpg" alt="banda-la-hermanastra-mas-fea" class="w-full rounded-lg mb-4">
+            
+            <p class="text-gray-800 mb-4 leading-relaxed">
+              <strong>La Hermanastra más Fea</strong> (Tiembla el Under por esta banda)
+            </p>
+            <p class="text-gray-800 mb-4 leading-relaxed">
+              Uno de los grupos que se han salido de la zona de confort del indie y le han apostado a los riff de guitarras pesados, a las baterías resonantes y mezclas que lo obligan a uno a meterse, como si no hubiera mañana, en un pogo profundo y violento. Aunque llevan algún tiempo dedicados al proyecto, aún no tienen muy claro los géneros que hacen.
+            </p>
+            
+            <div class="flex items-center justify-between mt-6">
+              <button onclick="likeBand('lhmf')" data-band-id="lhmf" class="like-btn bg-black text-white hover:bg-gray-800 px-4 py-2 rounded transition">
+                <i class="fa fa-heart-o"></i> Me gusta
+              </button>
+              <button onclick="toggleBlogSection('demo4')" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded transition">
+                Escucha <span class="bg-white text-black px-2 py-1 rounded ml-2">1</span>
+              </button>
+            </div>
+            
+            <div id="demo4" class="hidden mt-6 pt-6 border-t border-gray-400">
+              <div class="flex flex-col md:flex-row gap-4">
+                <img src="/img/lhmf-album3.jpg" class="w-32 h-32 rounded-lg">
+                <div class="flex-1">
+                  <h4 class="text-xl font-bold">Costa <span class="text-gray-600">- Diferencias Creativas Irreconciliables</span></h4>
+                  <p class="text-gray-700 text-sm mb-3">
+                    <i>En el toque donde presentaron este albúm "Destruye y construye", desbordaron emocionalidad con el performance y el ruido de las guitarras.</i><br>
+                    Puedes encontrar más de su música: <a href="https://lahermanastramasfea.bandcamp.com" target="_blank" class="text-purple-600 hover:text-purple-700">aquí</a>
+                  </p>
+                  <audio controls class="w-full">
+                    <source src="/music/casa-nueva.mp3" type="audio/mp3">
+                    Tu navegador no soporta audio HTML5.
+                  </audio>
+                </div>
+              </div>
+              
+              <div class="mt-6 pt-6 border-t border-gray-400">
+                <h4 class="text-xl font-bold mb-4"><i class="fa fa-comments mr-2"></i>Comentarios</h4>
+                <div id="comments-lhmf" class="mb-4"></div>
+                <div class="flex gap-2">
+                  <input type="text" id="comment-input-lhmf" placeholder="Escribe un comentario..." class="flex-1 px-4 py-2 rounded border border-gray-400 focus:outline-none focus:border-purple-500">
+                  <button onclick="addComment('lhmf')" class="bg-black hover:bg-gray-800 text-white px-6 py-2 rounded transition">
+                    Enviar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+        
+      </div>
+
+      <!-- Right Column - Sidebar (1/3 width) -->
+      <aside class="space-y-6">
+        
+        <!-- Featured Article -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <img src="/img/revista.jpg" alt="Revista margarita-siempre-viva" class="w-full grayscale hover:grayscale-0 transition">
+          <div class="bg-black text-white p-4">
+            <h4 class="text-xl font-bold mb-2">Margarita siempre viva</h4>
+            <p class="text-gray-300 text-sm">La fuerza de la música ALTERNATIVA, Artistas representativos de nuestra querida escena independiente bogotana</p>
+          </div>
         </div>
 
-    <!-- END BLOG ENTRIES -->
+        <!-- Upcoming Event -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <img src="/img/fiestoke.jpg" alt="Prontos Toques" class="w-full">
+          <div class="bg-black text-white p-4">
+            <h4 class="text-xl font-bold mb-2">Prontos Toques</h4>
+            <p class="text-gray-300 text-sm">
+              <a href="https://www.instagram.com/p/CsELT6bOwRr/?igshid=NTc4MTIwNjQ2YQ%3D%3D" target="_blank" class="text-purple-400 hover:text-purple-300">@perroperro.col</a> cierra mayo con este fiestoke que reúne algunos de los nombres más relevantes del panorama alternativo en Bogota.
+            </p>
+          </div>
+        </div>
+
+        <!-- Visitor Stats (New Section) -->
+        <div id="visitorStats">
+          <!-- Stats loaded dynamically -->
+        </div>
+
+        <!-- Recent Albums (New Section) -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h4 class="text-xl font-bold mb-4 flex items-center">
+            <i class="fa fa-music mr-2 text-purple-600"></i>
+            Álbums Recientes
+          </h4>
+          <div id="recentAlbumsContainer">
+            <!-- Albums loaded dynamically -->
+          </div>
+        </div>
+
+        <!-- Listen to EPs -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="bg-black text-white p-4">
+            <h4 class="text-xl font-bold">Escucha EP's</h4>
+          </div>
+          <ul class="divide-y divide-gray-200">
+            <li class="p-4 hover:bg-gray-50 transition">
+              <div class="flex gap-3">
+                <img src="/img/buha-album1.jpg" alt="buha2030-cansansio-hastio" class="w-16 h-16 rounded">
+                <div class="flex-1">
+                  <p class="font-semibold">Cansancio Hastio</p>
+                  <p class="text-sm text-gray-600">BUHA 2030</p>
+                  <audio controls class="w-full mt-2">
+                    <source src="/music/cansancio-hastio.mp3" type="audio/mp3">
+                  </audio>
+                </div>
+              </div>
+            </li>
+            <li class="p-4 hover:bg-gray-50 transition">
+              <div class="flex gap-3">
+                <img src="/img/lhmf-album4.jpg" alt="lhmf-zoey101" class="w-16 h-16 rounded">
+                <div class="flex-1">
+                  <p class="font-semibold">Zoey 101</p>
+                  <p class="text-sm text-gray-600">La Hermanastra más Fea</p>
+                  <audio controls class="w-full mt-2">
+                    <source src="/music/zoey101.mp3" type="audio/mp3">
+                  </audio>
+                </div>
+              </div>
+            </li>
+            <li class="p-4 hover:bg-gray-50 transition">
+              <div class="flex gap-3">
+                <img src="/img/encarta-album1.jpeg" alt="encarta98-diciembre" class="w-16 h-16 rounded">
+                <div class="flex-1">
+                  <p class="font-semibold">Diciembre</p>
+                  <p class="text-sm text-gray-600">Encarta 98</p>
+                  <audio controls class="w-full mt-2">
+                    <source src="/music/diciembre.mp3" type="audio/mp3">
+                  </audio>
+                </div>
+              </div>
+            </li>
+            <li class="p-4 hover:bg-gray-50 transition">
+              <div class="flex gap-3">
+                <img src="/img/mi-pasion-es-el-futbol.jpg" alt="kidchen-mpeef" class="w-16 h-16 rounded sepia">
+                <div class="flex-1">
+                  <p class="font-semibold">Mi pasion es el futbol</p>
+                  <p class="text-sm text-gray-600">Kidchen</p>
+                  <audio controls class="w-full mt-2">
+                    <source src="/music/kidchen.mp3" type="audio/mp3">
+                  </audio>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Genre Tags -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="bg-black text-white p-4">
+            <h4 class="text-xl font-bold">Géneros de música</h4>
+          </div>
+          <div class="p-4">
+            <div class="flex flex-wrap gap-2">
+              <span class="bg-black text-white px-3 py-1 rounded-full text-sm">Rock</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Jazz</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Experimental</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Alternativo</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Screamo</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Midwest emo</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Dream pop</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Post-rock</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Math rock</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Shoegaze</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Indie-rock</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Punk</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Math pop</span>
+              <span class="bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-sm">Hardcore</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Albums Gallery -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="bg-black text-white p-4">
+            <h4 class="text-xl font-bold">Álbumes</h4>
+          </div>
+          <div class="p-4 grid grid-cols-2 gap-3">
+            <img src="/img/album1.jpg" alt="letanias-de-jardin" class="w-full rounded hover:scale-105 transition">
+            <img src="/img/d-album3.jpg" alt="recaer" class="w-full rounded hover:scale-105 transition">
+            <img src="/img/d-album1.jpg" alt="afugias" class="w-full rounded hover:scale-105 transition">
+            <img src="/img/album3.jpg" alt="lentas-nubes-de-fuego" class="w-full rounded hover:scale-105 transition">
+          </div>
+        </div>
+
+        <!-- Other Singles -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="bg-black text-white p-4">
+            <h4 class="text-xl font-bold">Otros sencillos</h4>
+          </div>
+          <div class="p-4 grid grid-cols-2 gap-3">
+            <img src="/img/encarta-album2.jpeg" alt="emo3000" class="w-full rounded hover:scale-105 transition">
+            <img src="/img/basura-astillada.jpg" alt="monigote" class="w-full rounded hover:scale-105 transition">
+            <img src="/img/n-album2.jpeg" alt="como-pez-en-el-hielo" class="w-full rounded hover:scale-105 transition">
+            <img src="/img/kid-album2.jpg" alt="luz-amarilla" class="w-full rounded hover:scale-105 transition">
+          </div>
+        </div>
+
+        <!-- Social Follow -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="bg-black text-white p-4">
+            <h4 class="text-xl font-bold">Follow Me</h4>
+          </div>
+          <div class="p-4 flex justify-center gap-4 text-3xl">
+            <a href="#" class="text-gray-700 hover:text-purple-600 transition"><i class="fa fa-facebook-official"></i></a>
+            <a href="#" class="text-gray-700 hover:text-purple-600 transition"><i class="fa fa-instagram"></i></a>
+            <a href="#" class="text-gray-700 hover:text-purple-600 transition"><i class="fa fa-snapchat"></i></a>
+            <a href="#" class="text-gray-700 hover:text-purple-600 transition"><i class="fa fa-pinterest-p"></i></a>
+            <a href="#" class="text-gray-700 hover:text-purple-600 transition"><i class="fa fa-twitter"></i></a>
+            <a href="#" class="text-gray-700 hover:text-purple-600 transition"><i class="fa fa-linkedin"></i></a>
+          </div>
+        </div>
+
+        <!-- Newsletter Subscribe -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+          <div class="bg-black text-white p-4">
+            <h4 class="text-xl font-bold">Suscríbete</h4>
+          </div>
+          <div class="p-4">
+            <p class="text-gray-700 mb-4">Recibe las últimas novedades del blog en tu correo.</p>
+            <form id="subscribeForm">
+              <input type="email" name="email" placeholder="Ingresa tu email" required class="w-full px-4 py-2 border border-gray-300 rounded mb-3 focus:outline-none focus:border-purple-500">
+              <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded transition">
+                Suscribirse
+              </button>
+            </form>
+          </div>
+        </div>
+        
+      </aside>
     </div>
+  </div>
 
-    <!-- About/Information menu -->
-    <div class="w3-col l4">
-      <!-- About Card -->
-      <div class="w3-white w3-margin">
-        <img src="img/revista.jpg" alt="Revista margarita-siempre-viva" style="width:100%" class="w3-grayscale">
-        <div class="w3-container w3-black">
-          <h4>Margarita siempre viva</h4>
-          <p>La fuerza de la música ALTERNATIVA, Artistas representativos de nuestra querida escena independiente bogotana</p>
-        </div>
+  <!-- Footer -->
+  <footer class="bg-black text-white py-12 mt-12">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-white text-black hover:bg-gray-100 px-6 py-3 rounded-lg mb-6 transition">
+        <i class="fa fa-arrow-up mr-2"></i>Volver arriba
+      </button>
+      <div class="mt-6">
+        <img src="/img/Sticker.png" alt="logo-personal" class="w-32 mx-auto">
       </div>
-
-      <div class="w3-white w3-margin">
-        <img src="img/fiestoke.jpg" alt="Revista margarita-siempre-viva" style="width:100%">
-        <div class="w3-container w3-black">
-          <h4>Prontos Toques</h4>
-          <p><a href="https://www.instagram.com/p/CsELT6bOwRr/?igshid=NTc4MTIwNjQ2YQ%3D%3D" target="_blank">@perroperro.col</a> cierra mayo con este fiestoke que reúne algunos de los nombres más relevantes del panorama alternativo en Bogota.</p>
-        </div>
-      </div>
-      <hr>
-
-      <!-- Post to listen to Ep's -->
-      <div class="w3-white w3-margin">
-        <div class="w3-container w3-padding w3-black">
-          <h4>Escucha EP's</h4>
-        </div>
-        <ul class="w3-ul w3-hoverable w3-white">
-          <li class="w3-padding-16">
-            <img src="img/buha-album1.jpg" alt="buha2030-cansansio-hastio" class="w3-left w3-margin-right" style="width:50px">
-            <span class="w3-large">Cansancio Hastio</span>
-            <br>
-            <span>BUHA 2030</span>
-            <audio controls>
-              <source src="music/cansancio-hastio.mp3" type="audio/mp3">
-                  Tu navegador no soporta audio HTML5.
-            </audio>
-          </li>
-          <li class="w3-padding-16">
-            <img src="img/lhmf-album4.jpg" alt="lhmf-zoey101" class="w3-left w3-margin-right" style="width:50px">
-            <span class="w3-large">Zoey 101</span>
-            <br>
-            <span>La Hermanastra más Fea</span>
-            <audio controls>
-              <source src="music/zoey101.mp3" type="audio/mp3">
-                  Tu navegador no soporta audio HTML5.
-            </audio>
-          </li>
-          <li class="w3-padding-16">
-            <img src="img/encarta-album1.jpeg" alt="encarta98-diciembre" class="w3-left w3-margin-right" style="width:50px">
-            <span class="w3-large">Diciembre</span>
-            <br>
-            <span>Encarta 98</span>
-            <audio controls>
-              <source src="music/diciembre.mp3" type="audio/mp3">
-                  Tu navegador no soporta audio HTML5.
-            </audio>
-          </li>
-          <li class="w3-padding-16">
-            <img src="img/mi-pasion-es-el-futbol.jpg" alt="kidchen-mpeef" class="w3-left w3-margin-right w3-sepia" style="width:50px">
-            <span class="w3-large">Mi pasion es el futbol</span>
-            <br>
-            <span>Kidchen</span>
-            <audio controls>
-              <source src="music/kidchen.mp3" type="audio/mp3">
-                  Tu navegador no soporta audio HTML5.
-            </audio>
-          </li>
-        </ul>
-      </div>
-      <hr>
-
-     
-
-      <!-- Tags -->
-      <div class="w3-white w3-margin">
-        <div class="w3-container w3-padding w3-black">
-          <h4>Generos de música</h4>
-        </div>
-        <div class="w3-container w3-white">
-          <p>
-            <span class="w3-tag w3-black w3-margin-bottom">Rock</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Jazz</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Experimental</span>
-            <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Alternativo</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Screamo</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Midwest emo</span>
-            <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Dream pop</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Post-rock</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Math rock</span>
-            <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Shoegaze</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Indie-rock</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Punk</span>
-            <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Math pop</span> <span class="w3-tag w3-light-grey w3-small w3-margin-bottom">Hardcore</span>
-          </p>
-        </div>
-      </div>
-      <hr>
-
-      <!-- Albums -->
-      <div class="w3-white w3-margin">
-        <div class="w3-container w3-padding w3-black">
-          <h4>Álbumes</h4>
-        </div>
-        <div class="w3-row-padding w3-white">
-          <div class="w3-col s6">
-            <p><img src="img/album1.jpg" alt="letanias-de-jardin" style="width:100%"></p>
-            <p><img src="img/d-album1.jpg" alheadet="afugias" style="width:100%"></p>
-          </div>
-          <div class="w3-col s6">
-            <p><img src="img/d-album3.jpg" alt="recaer" style="width:100%"></p>
-            <p><img src="img/album3.jpg" alt="lentas-nubes-de-fuego" style="width:100%"></p>
-          </div>
-        </div>
     </div>
-    <hr>
+  </footer>
 
-      <!-- Others singles -->
-      <div class="w3-white w3-margin">
-        <div class="w3-container w3-padding w3-black">
-          <h4>Otros sencillos</h4>
-        </div>
-        <div class="w3-row-padding w3-white">
-          <div class="w3-col s6">
-            <p><img src="img/encarta-album2.jpeg" alt="emo3000" style="width:100%"></p>
-            <p><img src="img/n-album2.jpeg" alt="como-pez-en-el-hielo" style="width:100%"></p>
-          </div>
-          <div class="w3-col s6">
-            <p><img src="img/basura-astillada.jpg" alt="monigote" style="width:100%"></p>
-            <p><img src="img/kid-album2.jpg" alt="luz-amarilla" style="width:100%"></p>
-          </div>
-        </div>
-    </div>
-    <hr>
-
-      <div class="w3-white w3-margin">
-        <div class="w3-container w3-padding w3-black">
-          <h4>Follow Me</h4>
-        </div>
-        <div class="w3-container w3-xlarge w3-padding">
-          <i class="fa fa-facebook-official w3-hover-opacity"></i>
-          <i class="fa fa-instagram w3-hover-opacity"></i>
-          <i class="fa fa-snapchat w3-hover-opacity"></i>
-          <i class="fa fa-pinterest-p w3-hover-opacity"></i>
-          <i class="fa fa-twitter w3-hover-opacity"></i>
-          <i class="fa fa-linkedin w3-hover-opacity"></i>
-        </div>
-      </div>
-      <hr>
+  <!-- Login Modal -->
+  <div id="loginModal" data-modal class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-8 relative">
+      <button onclick="toggleModal('loginModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">
+        <i class="fa fa-times"></i>
+      </button>
       
-      <!-- Subscribe -->
-      <div class="w3-white w3-margin">
-        <div class="w3-container w3-padding w3-black">
-          <h4>Subscribe</h4>
+      <h2 class="text-3xl font-bold mb-6 text-center">Iniciar Sesión</h2>
+      
+      <!-- Social Login Buttons -->
+      <div class="space-y-3 mb-6">
+        <button id="instagramLoginBtn" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center">
+          <i class="fa fa-instagram mr-2"></i> Continuar con Instagram
+        </button>
+        
+        <button id="bandcampLoginBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center">
+          <i class="fa fa-music mr-2"></i> Continuar con Bandcamp
+        </button>
+        
+        <button id="googleLoginBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center">
+          <i class="fa fa-google mr-2"></i> Continuar con Google
+        </button>
+      </div>
+      
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-300"></div>
         </div>
-        <div class="w3-container w3-white">
-          <p>Enter your e-mail below and get notified on the latest blog posts.</p>
-          <p><input class="w3-input w3-border" type="text" placeholder="Enter e-mail" style="width:100%"></p>
-          <p><button type="button" onclick="document.getElementById('subscribe').style.display='block'" class="w3-button w3-block w3-purple">Subscribe</button></p>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-gray-500">O con email</span>
         </div>
       </div>
-
-    <!-- END About/Intro Menu -->
-    </div>
-
-  <!-- END GRID -->
-  </div>
-
-<!-- END w3-content -->
-</div>
-
-<!-- Subscribe Modal -->
-<div id="subscribe" class="w3-modal w3-animate-opacity">
-  <div class="w3-modal-content" style="padding:32px">
-    <div class="w3-container w3-white">
-      <i onclick="document.getElementById('subscribe').style.display='none'" class="fa fa-remove w3-transparent w3-button w3-xlarge w3-right"></i>
-      <h2 class="w3-wide">SUBSCRIBE</h2>
-      <p>Join my mailing list to receive updates on the latest blog posts and other things.</p>
-      <p><input class="w3-input w3-border" type="text" placeholder="Enter e-mail"></p>
-      <button type="button" class="w3-button w3-block w3-padding-large w3-purple w3-margin-bottom" onclick="document.getElementById('subscribe').style.display='none'">Subscribe</button>
+      
+      <!-- Email Login Form -->
+      <form id="loginForm" class="space-y-4">
+        <input type="email" name="email" placeholder="Email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+        <input type="password" name="password" placeholder="Contraseña" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+        <button type="submit" class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition">
+          Iniciar Sesión
+        </button>
+      </form>
+      
+      <p class="text-center text-gray-600 text-sm mt-6">
+        ¿No tienes cuenta? <button onclick="toggleModal('loginModal'); toggleModal('registerModal')" class="text-purple-600 hover:text-purple-700 font-semibold">Regístrate</button>
+      </p>
     </div>
   </div>
-</div>
 
-<!-- Footer -->
-<div class="w3-bar w3-black w3-hide-small"></div>
-<footer class="w3-container w3-black" style="padding:32px">
-  <a href="#" class="w3-button w3-white w3-padding-large w3-margin-bottom"><i class="fa fa-arrow-up w3-margin-right"></i>To the top</a>
-  <a href="#" class="w3-bar-item w3-button w3-right"><img src="img/Sticker.png" alt="logo-personal" class="w3-left w3-margin-right" style="width:150px"></a>
-</footer>
+  <!-- Register Modal -->
+  <div id="registerModal" data-modal class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-8 relative">
+      <button onclick="toggleModal('registerModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">
+        <i class="fa fa-times"></i>
+      </button>
+      
+      <h2 class="text-3xl font-bold mb-6 text-center">Crear Cuenta</h2>
+      
+      <form id="registerForm" class="space-y-4">
+        <input type="text" name="name" placeholder="Nombre completo" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+        <input type="email" name="email" placeholder="Email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+        <input type="password" name="password" placeholder="Contraseña (mínimo 6 caracteres)" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition">
+          Registrarse
+        </button>
+      </form>
+      
+      <p class="text-center text-gray-600 text-sm mt-6">
+        ¿Ya tienes cuenta? <button onclick="toggleModal('registerModal'); toggleModal('loginModal')" class="text-purple-600 hover:text-purple-700 font-semibold">Inicia sesión</button>
+      </p>
+    </div>
+  </div>
 
-<script>
-// Toggle between hiding and showing blog replies/comments
-document.getElementById("myBtn").click();
-function myFunction(id) {
-  var x = document.getElementById(id);
-  if (x.className.indexOf("w3-show") == -1) {
-    x.className += " w3-show";
-  } else { 
-    x.className = x.className.replace(" w3-show", "");
-  }
-}
-
-function likeFunction(x) {
-  x.style.fontWeight = "bold";
-  x.innerHTML = "✓ Liked";
-}
-</script>
-
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Application Scripts -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/database.js"></script>
+  <script src="/js/ui-helpers.js"></script>
+  <script src="/js/main.js"></script>
+  
 </body>
 </html>
