@@ -1,14 +1,14 @@
 // Firebase Configuration
-// TODO: Replace these values with your actual Firebase project credentials
 // Get these from: Firebase Console > Project Settings > General > Your apps > Web app
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY_HERE",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyAGwr_x0O5ey-llKbhxoFiTUOnsSD8za-c",
+    authDomain: "melomania-viva.firebaseapp.com",
+    projectId: "melomania-viva",
+    storageBucket: "melomania-viva.firebasestorage.app",
+    messagingSenderId: "803225895839",
+    appId: "1:803225895839:web:37269cfe18e6b438fbf3aa",
+    measurementId: "G-04Z9KD60E6"
 };
 
 // Initialize Firebase
@@ -16,13 +16,13 @@ let app, auth, db;
 
 try {
   // Check if Firebase is loaded
-  if (typeof firebase !== 'undefined') {
+  if (typeof firebase === 'undefined') {
+    console.warn('Firebase SDK not loaded yet');
+  } else {
     app = firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
     console.log('Firebase initialized successfully');
-  } else {
-    console.warn('Firebase SDK not loaded yet');
   }
 } catch (error) {
   console.error('Error initializing Firebase:', error);

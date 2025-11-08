@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   
   // Track visit
-  if (window.firebaseDB) {
+  if (globalThis.firebaseDB) {
     const user = authService.getCurrentUser();
     dbService.trackVisit(user ? user.uid : null);
   }
