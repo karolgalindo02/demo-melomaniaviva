@@ -1,4 +1,15 @@
--e 
-# Environment files
-*.env
-*.env.*
+# Ignorar carpetas en la raíz del repositorio
+/setup/
+/music/
+/img/
+
+# Ignorar todo el contenido en subrutas también
+/**/setup/
+/**/music/
+/**/img/
+
+# Si quieres mantener la carpeta en el repo, añade un .gitkeep dentro
+# y evita ignorar específicamente ese archivo:
+!/setup/.gitkeep
+!/music/.gitkeep
+!/img/.gitkeep
