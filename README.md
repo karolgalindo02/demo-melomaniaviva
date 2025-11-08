@@ -1,20 +1,20 @@
 # Melomania Viva! 
 
-![Banner Melomania Viva]()
+![Banner Melomania Viva](https://github.com/karolgalindo02/demo-melomaniaviva/blob/main/img/Banner%20melomaniaviva.png)
 
 _— Página-tributo_
 
 _★ Objetivo Estratégico ★_  
-_Creación PWA accesible... ligera con reseñas y material multimedia sobre bandas alternas, consumo y contribución de contenido para la comunidad musical._
+_Creación PWA accesible ligera con reseñas y material multimedia sobre bandas alternas, para el consumo y contribución de contenido de la comunidad musical._
 
 
 ## Instalación 🚀
 
 _Install this site_
 
-* Clonar (usa tu repo):
 ```
-gh repo clone <usuario>/<repo>   # o: git clone https://github.com/<usuario>/<repo>.git
+Android esperar el prompt o Menú (•••) → "Agregar a pantalla de inicio".
+Desktop icono "Instalar" en la barra de direcciones o Menú → "Instalar [app]".
 ```
 
 ## Estructura del proyecto 🔧
