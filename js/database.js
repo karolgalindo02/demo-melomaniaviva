@@ -69,6 +69,7 @@ class DatabaseService {
         image: bandData.image || '',
         bandcampUrl: bandData.bandcampUrl || '',
         instagramUrl: bandData.instagramUrl || '',
+        track: bandData.track || [],
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         likes: 0,
         views: 0
@@ -82,24 +83,68 @@ class DatabaseService {
     }
   }
 
-  // ============ ALBUMS ============
-  
-  async getRecentAlbums(limit = 10) {
+ async getTrackData(bandId, trackIndex = 0) {
     try {
-      const snapshot = await this.db.collection('albums')
-        .orderBy('releaseDate', 'desc')
-        .limit(limit)
-        .get();
+      const band = await this.getBandById(bandId);
+
+      if (!band) {
+        throw new Error(`Banda con ID ${bandId} no encontrada`);
+      }
+
+
+      let tracksMap = band.tracks || band.track || {};
+      let tracksArray = [];
       
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      // Si es un OBJETO directo con 'url', es un track único
+      if (tracksMap.url && typeof tracksMap.url === 'string') {
+        tracksArray = [tracksMap]; // Envolver en array
+      }
+
+
+      
+      if (tracksArray.length === 0) {
+        throw new Error('No se encontraron tracks válidos para esta banda');
+      }
+      
+      if (trackIndex >= tracksArray.length) {
+        throw new Error(`Track en índice ${trackIndex} no encontrado`);
+      }
+      
+      const track = tracksArray[trackIndex];
+      
+      return {
+        title: track.title?.toString().trim() || `Canción ${trackIndex + 1}`,
+        artist: band.name || 'Artista desconocido',
+        url: track.url.toString().trim(),
+        albumArt: track.image || band.image || '/img/music-heart.png',
+        duration: track.duration?.toString().trim() || '0:00'
+      };
+      
     } catch (error) {
-      console.error('Error getting albums:', error);
-      return [];
+      console.error(`Error getting track data for band ${bandId}:`, error);
+      throw error;
     }
   }
+
+
+  // ============ ALBUMS ============
+  
+async getRecentAlbums(limit = 100) {  // Aumenta el límite a 100 (o más si necesitas)
+  try {
+    const snapshot = await this.db.collection('albums')
+      .orderBy('releaseDate', 'desc')
+      .limit(limit)
+      .get();
+    
+    return snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+  } catch (error) {
+    console.error('Error getting albums:', error);
+    return [];
+  }
+}
 
   async addAlbum(albumData) {
     try {
@@ -112,7 +157,7 @@ class DatabaseService {
         bandName: this.sanitizeInput(albumData.bandName),
         coverImage: albumData.coverImage || '',
         releaseDate: albumData.releaseDate || new Date(),
-        tracks: albumData.tracks || [],
+        track: albumData.track || [],
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       

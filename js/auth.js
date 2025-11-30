@@ -91,26 +91,7 @@ class AuthService {
     }
   }
 
-  // BandCamp OAuth Login
-  async loginWithBandcamp() {
-    try {
-      // TODO: Configure BandCamp as custom OAuth provider
-      // Note: BandCamp requires custom implementation as it's not a standard Firebase provider
-      alert('BandCamp login requiere implementación personalizada con las API keys de BandCamp.');
-      
-      // This would require:
-      // 1. Backend endpoint to handle OAuth flow
-      // 2. BandCamp client_id and client_secret
-      // 3. Custom token generation in Firebase
-      
-      throw new Error('BandCamp login not yet implemented');
-    } catch (error) {
-      console.error('BandCamp login error:', error);
-      throw error;
-    }
-  }
-
-  // Google OAuth Login (alternative)
+  // Google OAuth Login
   async loginWithGoogle() {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
