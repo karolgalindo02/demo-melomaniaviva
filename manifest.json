@@ -21,8 +21,17 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["music", "entertainment"],
+ "screenshots": [
+    {
+      "src": "/img/banner.jpg",
+      "sizes": "1920x1080",
+      "type": "image/jpeg",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["music", "entertainment", "lifestyle"],
   "lang": "es-ES",
   "dir": "ltr",
-  "scope": "/"
+  "scope": "/",
+  "prefer_related_applications": false
 }

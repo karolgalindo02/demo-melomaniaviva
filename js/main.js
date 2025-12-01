@@ -30,6 +30,92 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupEventListeners();
 });
 
+// ============ MUSIC PLAYER INTEGRATION ============
+
+// Function to add band track to playlist
+async function addBandTrackToPlaylist(bandId, trackIndex = 0) {
+  try {
+    const trackData = await dbService.getTrackData(bandId, trackIndex);
+    
+    if (window.musicPlayer && trackData.url) {
+      window.musicPlayer.addToPlaylist(trackData);
+      showToast('Canción agregada a la playlist', 'success');
+    } else {
+      showError('No se pudo cargar la canción');
+    }
+  } catch (error) {
+    console.error('Error adding band track to playlist:', error);
+    showError('Error al cargar la canción');
+  }
+}
+
+// Function to play band track immediately
+async function playBandTrack(bandId, trackIndex = 0) {
+  try {
+    const trackData = await dbService.getTrackData(bandId, trackIndex);
+    
+    if (window.musicPlayer && trackData.url) {
+      window.musicPlayer.addToPlaylist(trackData);
+      window.musicPlayer.playTrack(window.musicPlayer.playlist.length - 1);
+      showToast('Reproduciendo canción', 'success');
+    } else {
+      showError('No se pudo cargar la canción para reproducir');
+    }
+  } catch (error) {
+    console.error('Error playing band track:', error);
+    showError('Error al reproducir la canción');
+  }
+}
+
+// ============ LOAD BAND TRACKS WHEN SECTION OPENS ============
+
+async function loadBandTrack(bandId) {
+  try {
+    const trackData = await dbService.getTrackData(bandId, 0);
+    const audioElement = document.getElementById(`audio-${bandId}`);
+    
+    if (audioElement && trackData.url) {
+      // Actualizar la fuente del audio
+      const source = audioElement.querySelector('source');
+      source.src = trackData.url;
+      audioElement.load(); // Recargar el elemento de audio
+      
+      console.log(`Audio source updated for ${bandId}:`, trackData.url);
+    } else {
+      console.warn(`No audio element or URL found for ${bandId}`);
+    }
+  } catch (error) {
+    console.error(`Error loading track for ${bandId}:`, error);
+  }
+}
+
+// Modifica la función toggleBlogSection para cargar el track cuando se abra
+function toggleBlogSection(sectionId) {
+  const section = document.getElementById(sectionId);
+  if (section) {
+    const wasHidden = section.classList.contains('hidden');
+    section.classList.toggle('hidden');
+    
+    // Cargar track y comentarios cuando la sección se abre
+    if (wasHidden) {
+      const bandMap = {
+        'demo1': 'distimia',
+        'demo2': 'margarita', 
+        'demo3': 'nicolas',
+        'demo4': 'lhmf'
+      };
+      
+      const bandId = bandMap[sectionId];
+      if (bandId) {
+        // Cargar el track de la banda
+        loadBandTrack(bandId);
+        // Cargar los comentarios
+        loadComments(bandId);
+      }
+    }
+  }
+}
+
 // ============ LOAD DYNAMIC CONTENT ============
 
 async function loadRecentEvents() {
@@ -42,7 +128,7 @@ async function loadRecentEvents() {
     const events = await dbService.getUpcomingEvents(5);
     
     if (events.length === 0) {
-      container.innerHTML = '<p class="text-gray-500 text-center py-4">No hay eventos próximos</p>';
+      container.innerHTML = '<div class="col-span-2"><p class="text-gray-500 text-center py-4">No hay eventos próximos</p></div>';
       return;
     }
     
@@ -63,7 +149,7 @@ async function loadRecentEvents() {
     container.innerHTML = html;
   } catch (error) {
     console.error('Error loading events:', error);
-    container.innerHTML = '<p class="text-gray-500 text-center py-4">Error al cargar eventos</p>';
+    container.innerHTML = '<div class="col-span-2"><p class="text-gray-500 text-center py-4">Error al cargar eventos</p></div>';
   }
 }
 
@@ -74,6 +160,15 @@ async function loadRecentAlbums() {
   showLoading('recentAlbumsContainer');
   
   try {
+    if (!window.firebaseDB) {
+      console.log('Firebase not initialized, using placeholder data');
+      container.innerHTML = `
+        <div class="text-center py-4">
+          <p class="text-gray-500 mb-2">Configura Firebase para ver álbums reales</p>
+        </div>
+      `;
+      return;
+    }
     const albums = await dbService.getRecentAlbums(8);
     
     if (albums.length === 0) {
@@ -85,9 +180,11 @@ async function loadRecentAlbums() {
     albums.forEach(album => {
       html += `
         <div class="card-hover fade-in">
+        <a href="/album.html?id=${album.id}">
           <img src="${album.coverImage || '/img/album1.jpg'}" alt="${album.title}" class="w-full rounded-lg shadow-lg">
           <p class="text-white text-sm mt-2 font-semibold">${album.title}</p>
           <p class="text-gray-400 text-xs">${album.bandName}</p>
+        </a>
         </div>
       `;
     });
@@ -107,6 +204,15 @@ async function loadNews() {
   showLoading('newsContainer');
   
   try {
+    if (!window.firebaseDB) {
+      console.log('Firebase not initialized, using placeholder data');
+      container.innerHTML = `
+        <div class="text-center py-8">
+          <p class="text-gray-500 mb-2">Configura Firebase para ver noticias reales</p>
+        </div>
+      `;
+      return;
+    }
     const news = await dbService.getNews(5);
     
     if (news.length === 0) {
@@ -309,6 +415,10 @@ async function loadComments(bandId) {
   showLoading(`comments-${bandId}`);
   
   try {
+    if (!window.firebaseDB) {
+      container.innerHTML = '<p class="text-gray-500 text-sm">Configura Firebase para ver comentarios</p>';
+      return;
+    }
     const comments = await dbService.getComments(bandId);
     
     if (comments.length === 0) {
@@ -368,16 +478,11 @@ function viewNewsDetail(newsId) {
   // TODO: Implement news detail view
 }
 
-function toggleBlogSection(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (section) {
-    section.classList.toggle('hidden');
-  }
-}
-
 // Make functions globally available
-window.likeBand = likeBand;
-window.loadComments = loadComments;
-window.addComment = addComment;
-window.viewNewsDetail = viewNewsDetail;
-window.toggleBlogSection = toggleBlogSection;
+globalThis.likeBand = likeBand;
+globalThis.loadComments = loadComments;
+globalThis.addComment = addComment;
+globalThis.viewNewsDetail = viewNewsDetail;
+globalThis.toggleBlogSection = toggleBlogSection;
+globalThis.addBandTrackToPlaylist = addBandTrackToPlaylist;
+globalThis.playBandTrack = playBandTrack;

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Álbums - Melomania Viva!</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/img/music-heart.png">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body class="bg-gray-50">
+  
+  <!-- Navigation -->
+  <nav class="bg-black text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+        <a href="/index.html" class="flex items-center gap-2">
+          <img src="/img/skull.png" alt="logo" class="w-10 h-10">
+          <span class="font-bold text-xl">Melomania Viva!</span>
+        </a>
+        
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <input type="text" placeholder="Buscar álbums..." 
+                   class="bg-gray-800 text-white px-4 py-2 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-64">
+            <i class="fa fa-search absolute right-3 top-3 text-gray-400"></i>
+          </div>
+          <a href="/index.html" class="hover:text-purple-400 transition">Inicio</a>
+          <a href="/albums.html" class="text-purple-400">Álbums</a>
+          <a href="/profile.html" class="hover:text-purple-400 transition">
+            <i class="fa fa-user"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4">
+      <h1 class="text-5xl font-bold mb-4">Descubre Álbums</h1>
+      <p class="text-xl text-purple-100">Explora la mejor música independiente</p>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex items-center gap-4 flex-wrap">
+        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+          <option>Todos los géneros</option>
+          <option>Rock Alternativo</option>
+          <option>Indie Rock</option>
+          <option>Screamo</option>
+          <option>Post-punk</option>
+          <option>Shoegaze</option>
+        </select>
+        
+        <select class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+          <option>Más recientes</option>
+          <option>Más antiguos</option>
+          <option>Más populares</option>
+          <option>Nombre A-Z</option>
+        </select>
+        
+        <button class="ml-auto bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition">
+          <i class="fa fa-filter mr-2"></i>Filtrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Albums Grid -->
+  <div class="max-w-7xl mx-auto px-4 py-12">
+    <div id="albumsGrid">
+      <!-- Albums will be loaded here -->
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Application Scripts -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/database.js"></script>
+  <script src="/js/ui-helpers.js"></script>
+  <script src="/js/music-player.js"></script>
+  <script src="/js/albums.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAllAlbums();
+    });
+  </script>
+  
+</body>
+</html>

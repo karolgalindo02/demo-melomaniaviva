@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html g="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Álbum - Melomania Viva!</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/img/music-heart.png">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body class="bg-gray-50">
+  
+  <!-- Navigation -->
+  <nav class="bg-black text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+        <a href="/index.html" class="flex items-center gap-2">
+          <img src="/img/skull.png" alt="logo" class="w-10 h-10">
+          <span class="font-bold text-xl">Melomania Viva!</span>
+        </a>
+        
+        <div class="flex items-center gap-6">
+          <div class="relative">
+            <input type="text" placeholder="Buscar música..." 
+                   class="bg-gray-800 text-white px-4 py-2 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 w-64">
+            <i class="fa fa-search absolute right-3 top-3 text-gray-400"></i>
+          </div>
+          <a href="/index.html" class="hover:text-purple-400 transition">Inicio</a>
+          <a href="/albums.html" class="hover:text-purple-400 transition">Álbums</a>
+          <button id="navLoginBtn" onclick="toggleModal('loginModal')" class="hover:text-purple-400 transition">
+            <i class="fa fa-user"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Album Content -->
+  <div id="albumContent" class="min-h-screen">
+    <!-- Content will be loaded dynamically -->
+  </div>
+
+  <!-- Login Modal (copied from index.html) -->
+  <div id="loginModal" data-modal class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-8 relative">
+      <button onclick="toggleModal('loginModal')" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-2xl">
+        <i class="fa fa-times"></i>
+      </button>
+      
+      <h2 class="text-3xl font-bold mb-6 text-center">Iniciar Sesión</h2>
+      
+      <div class="space-y-3 mb-6">
+        <button id="googleLoginBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center">
+          <i class="fa fa-google mr-2"></i> Continuar con Google
+        </button>
+      </div>
+      
+      <div class="relative my-6">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-gray-300"></div>
+        </div>
+        <div class="relative flex justify-center text-sm">
+          <span class="px-2 bg-white text-gray-500">O con email</span>
+        </div>
+      </div>
+      
+      <form id="loginForm" class="space-y-4">
+        <input type="email" name="email" placeholder="Email" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+        <input type="password" name="password" placeholder="Contraseña" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+        <button type="submit" class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-lg transition">
+          Iniciar Sesión
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Application Scripts -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/database.js"></script>
+  <script src="/js/ui-helpers.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/music-player.js"></script>
+  <script src="/js/albums.js"></script>
+  
+</body>
+</html>

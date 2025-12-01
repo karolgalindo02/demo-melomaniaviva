@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Perfil - Melomania Viva!</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/img/music-heart.png">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Oswald">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans">
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/css/custom.css">
+</head>
+
+<body class="bg-gray-50">
+  
+  <!-- Navigation -->
+  <nav class="bg-black text-white shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+
+          <img src="/img/skull.png" alt="logo" class="w-10 h-10">
+          <span class="font-bold text-xl">Melomania Viva!</span>
+        </a>
+        
+        <div class="flex items-center gap-4">
+          <a href="/index.html" class="hover:text-purple-400 transition">Inicio</a>
+          <a href="/albums.html" class="hover:text-purple-400 transition">Álbums</a>
+          <div id="userInfo" class="flex items-center gap-2">
+            <img id="navUserPhoto" src="/img/music-heart.png" alt="User" class="w-8 h-8 rounded-full">
+            <span id="navUserName">Usuario</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Banner Section -->
+  <div id="currentBannerImage" class="relative h-64 bg-gradient-to-r from-purple-600 to-pink-600 bg-cover bg-center">
+    <button onclick="document.getElementById('bannerImageInput').click()" 
+            class="absolute top-4 right-4 bg-black bg-opacity-50 hover:bg-opacity-70 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+      <i class="fa fa-camera"></i> Cambiar Banner
+    </button>
+    <input type="file" id="bannerImageInput" accept="image/*" class="hidden">
+  </div>
+
+  <!-- Profile Container -->
+  <div class="max-w-7xl mx-auto px-4 -mt-20">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Left Column - Profile Card -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <!-- Profile Image -->
+          <div class="relative w-32 h-32 mx-auto mb-4">
+            <img id="currentProfileImage" src="/img/music-heart.png" alt="Profile" class="w-full h-full rounded-full object-cover border-4 border-white shadow-lg">
+            <button onclick="document.getElementById('profileImageInput').click()" 
+                    class="absolute bottom-0 right-0 bg-purple-600 hover:bg-purple-700 text-white rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
+              <i class="fa fa-camera"></i>
+            </button>
+            <input type="file" id="profileImageInput" accept="image/*" class="hidden">
+          </div>
+          
+          <div id="imageUploadStatus"></div>
+          <div id="bannerUploadStatus"></div>
+          
+          <div class="text-center mb-6">
+            <h2 id="displayName" class="text-2xl font-bold text-gray-900 mb-1">Usuario</h2>
+            <p id="displayEmail" class="text-gray-600 text-sm">email@example.com</p>
+          </div>
+          
+          <!-- Stats -->
+          <div class="grid grid-cols-3 gap-4 mb-6 text-center">
+            <div>
+              <p class="text-2xl font-bold text-purple-600" id="likesCount">0</p>
+              <p class="text-xs text-gray-600">Me gusta</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold text-purple-600">0</p>
+              <p class="text-xs text-gray-600">Comentarios</p>
+            </div>
+            <div>
+              <p class="text-2xl font-bold text-purple-600">0</p>
+              <p class="text-xs text-gray-600">Visitas</p>
+            </div>
+          </div>
+          
+          <!-- Quick Actions -->
+          <div class="space-y-2">
+            <button onclick="window.location.href='/index.html'" 
+                    class="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 py-2 rounded transition flex items-center justify-center gap-2">
+              <i class="fa fa-home"></i> Ir al inicio
+            </button>
+            <button onclick="authService.logout()" 
+                    class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded transition flex items-center justify-center gap-2">
+              <i class="fa fa-sign-out"></i> Cerrar sesión
+            </button>
+          </div>
+        </div>
+        
+        <!-- Security Settings -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+          <h3 class="font-bold text-xl mb-4"><i class="fa fa-shield mr-2"></i>Seguridad</h3>
+          
+          <div class="space-y-4">
+            <!-- Two Factor Authentication -->
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="font-semibold">Autenticación de dos factores</span>
+                <span id="twoFactorStatus" class="text-gray-500">Deshabilitado</span>
+              </div>
+              <button id="btnToggleTwoFactor" 
+                      class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded transition">
+                Habilitar
+              </button>
+              <p class="text-xs text-gray-500 mt-2">
+                Agrega una capa extra de seguridad a tu cuenta
+              </p>
+            </div>
+            
+            <!-- Change Password -->
+            <div>
+              <button class="w-full bg-gray-200 hover:bg-gray-300 text-gray-900 py-2 rounded transition">
+                Cambiar contraseña
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+       <!-- Right Column - Profile Details & Activity -->
+      <div class="lg:col-span-2">
+        
+        <!-- Profile View Section -->
+        <div id="profileViewSection" class="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="font-bold text-2xl">Mi Perfil</h3>
+            
+          </div>
+          
+          <div class="space-y-4">
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Nombre</p>
+              <p id="viewDisplayName" class="text-gray-900 text-lg">Usuario</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Email</p>
+              <p id="viewEmail" class="text-gray-900">email@example.com</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Ubicación</p>
+              <p id="viewLocation" class="text-gray-900">No especificado</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Biografía</p>
+              <p id="viewBio" class="text-gray-900">Sin biografía</p>
+            </div>
+            
+            <div>
+              <p class="text-gray-600 text-sm font-semibold mb-1">Redes</p>
+              <p id="viewWebsite" class="text-gray-900">No especificado</p>
+            </div>
+            <button id="btnEditProfile" 
+                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition">
+              Editar
+            </button>
+          </div>
+          
+        </div>
+        
+        <!-- Edit Profile Form -->
+        <div id="profileForm" class="bg-white rounded-lg shadow-lg p-6 mb-6 hidden">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="font-bold text-2xl">Editar Perfil</h3>
+          </div>
+          
+          <div id="profileStatus" class="mb-4"></div>
+          
+          <form id="profileFormSubmit" class="space-y-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
+              <input type="text" id="profileName" placeholder="Tu nombre" required
+                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Ubicación</label>
+              <input type="text" id="profileLocation" placeholder="Ciudad, País"
+                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Sitio Web / Instagram</label>
+              <input type="url" id="profileWebsite" placeholder="https://instagram.com/tunombre o tu sitio web"
+                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Biografía</label>
+              <textarea id="profileBio" rows="4" placeholder="Cuéntanos sobre ti..."
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-500"></textarea>
+            </div>
+            
+            <div class="flex gap-3">
+              <button type="submit" 
+                      class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-lg transition">
+                Guardar Cambios
+              </button>
+              <button type="button" onclick="profileManager.toggleEditMode()" 
+                      class="px-6 bg-gray-200 hover:bg-gray-300 text-gray-900 font-semibold py-3 rounded-lg transition">
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Tabs for Activity -->
+        <div class="bg-white rounded-lg shadow-lg">
+          <div class="border-b border-gray-200">
+            <nav class="flex">
+              <button onclick="showTab('likes')" id="tab-likes"
+                      class="px-6 py-4 font-semibold text-purple-600 border-b-2 border-purple-600">
+                <i class="fa fa-heart mr-2"></i>Me gusta
+              </button>
+              <button onclick="showTab('comments')" id="tab-comments"
+                      class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-900">
+                <i class="fa fa-comments mr-2"></i>Comentarios
+              </button>
+              <button onclick="showTab('activity')" id="tab-activity"
+                      class="px-6 py-4 font-semibold text-gray-600 hover:text-gray-900">
+                <i class="fa fa-clock-o mr-2"></i>Actividad
+              </button>
+            </nav>
+          </div>
+          
+          <div class="p-6">
+            <!-- Likes Tab -->
+            <div id="content-likes">
+              <h3 class="font-bold text-xl mb-4">Bandas que te gustan</h3>
+              <div id="userLikesContainer">
+                <!-- Likes will be loaded here -->
+              </div>
+            </div>
+            
+            <!-- Comments Tab -->
+            <div id="content-comments" class="hidden">
+              <h3 class="font-bold text-xl mb-4">Tus comentarios</h3>
+              <div id="userCommentsContainer">
+                <p class="text-gray-500 text-center py-8">No has hecho comentarios aún</p>
+              </div>
+            </div>
+            
+            <!-- Activity Tab -->
+            <div id="content-activity" class="hidden">
+              <h3 class="font-bold text-xl mb-4">Actividad reciente</h3>
+              <div id="userActivityContainer">
+                <p class="text-gray-500 text-center py-8">No hay actividad reciente</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  
+  <!-- Application Scripts -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/database.js"></script>
+  <script src="/js/ui-helpers.js"></script>
+  <script src="/js/music-player.js"></script>
+  <script src="/js/profile.js"></script>
+  
+  <script>
+    function showTab(tabName) {
+      // Hide all tabs
+      ['likes', 'comments', 'activity'].forEach(tab => {
+        document.getElementById(`content-${tab}`).classList.add('hidden');
+        document.getElementById(`tab-${tab}`).className = 'px-6 py-4 font-semibold text-gray-600 hover:text-gray-900';
+      });
+      
+      // Show selected tab
+      document.getElementById(`content-${tabName}`).classList.remove('hidden');
+      document.getElementById(`tab-${tabName}`).className = 'px-6 py-4 font-semibold text-purple-600 border-b-2 border-purple-600';
+    }
+  </script>
+</body>
+</html>
