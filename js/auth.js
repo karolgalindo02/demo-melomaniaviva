@@ -20,9 +20,11 @@ class AuthService {
   updateUI(user) {
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
+    const heroBtnLogin = document.getElementById('heroBtnLogin');
     
     if (user) {
       if (loginBtn) loginBtn.style.display = 'none';
+      if (heroBtnLogin) heroBtnLogin.style.display = 'none';
       if (userInfo) {
         userInfo.style.display = 'block';
         userInfo.innerHTML = `
@@ -35,6 +37,7 @@ class AuthService {
       }
     } else {
       if (loginBtn) loginBtn.style.display = 'block';
+      if (heroBtnLogin) heroBtnLogin.style.display = 'block';
       if (userInfo) userInfo.style.display = 'none';
     }
   }
@@ -68,25 +71,6 @@ class AuthService {
       return result.user;
     } catch (error) {
       console.error('Registration error:', error);
-      throw error;
-    }
-  }
-
-  // Instagram OAuth Login
-  async loginWithInstagram() {
-    try {
-      // TODO: Configure Instagram OAuth provider in Firebase Console
-      // Firebase Console > Authentication > Sign-in method > Add provider > Instagram
-      const provider = new firebase.auth.OAuthProvider('instagram.com');
-      
-      const result = await window.firebaseAuth.signInWithPopup(provider);
-      await this.createUserDocument(result.user);
-      
-      console.log('Instagram login successful:', result.user);
-      return result.user;
-    } catch (error) {
-      console.error('Instagram login error:', error);
-      alert('Instagram login no está configurado aún. Por favor agrega las credenciales de Instagram OAuth en Firebase Console.');
       throw error;
     }
   }
