@@ -1,15 +1,15 @@
 // Authentication Module
 
 class AuthService {
+  currentUser = null;
   constructor() {
-    this.currentUser = null;
     this.initAuthListener();
   }
 
   // Listen for auth state changes
   initAuthListener() {
-    if (window.firebaseAuth) {
-      window.firebaseAuth.onAuthStateChanged((user) => {
+    if (globalThis.firebaseAuth) {
+      globalThis.firebaseAuth.onAuthStateChanged((user) => {
         this.currentUser = user;
         this.updateUI(user);
       });
@@ -45,7 +45,7 @@ class AuthService {
   // Email/Password Login
   async loginWithEmail(email, password) {
     try {
-      const result = await window.firebaseAuth.signInWithEmailAndPassword(email, password);
+      const result = await globalThis.firebaseAuth.signInWithEmailAndPassword(email, password);
       console.log('Login successful:', result.user);
       return result.user;
     } catch (error) {
@@ -57,7 +57,7 @@ class AuthService {
   // Email/Password Registration
   async registerWithEmail(email, password, displayName) {
     try {
-      const result = await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
+      const result = await globalThis.firebaseAuth.createUserWithEmailAndPassword(email, password);
       
       // Update profile with display name
       await result.user.updateProfile({
@@ -79,7 +79,7 @@ class AuthService {
   async loginWithGoogle() {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
-      const result = await window.firebaseAuth.signInWithPopup(provider);
+      const result = await globalThis.firebaseAuth.signInWithPopup(provider);
       await this.createUserDocument(result.user);
       
       console.log('Google login successful:', result.user);
@@ -92,12 +92,16 @@ class AuthService {
 
   // Create user document in Firestore
   async createUserDocument(user) {
-    if (!window.firebaseDB) return;
+    if (!globalThis.firebaseDB) return;
     
-    const userRef = window.firebaseDB.collection('users').doc(user.uid);
+    const userRef = globalThis.firebaseDB.collection('users').doc(user.uid);
     const doc = await userRef.get();
     
-    if (!doc.exists) {
+    if (doc.exists) {
+      await userRef.update({
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
       await userRef.set({
         uid: user.uid,
         email: user.email,
@@ -106,17 +110,13 @@ class AuthService {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
       });
-    } else {
-      await userRef.update({
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-      });
     }
   }
 
   // Logout
   async logout() {
     try {
-      await window.firebaseAuth.signOut();
+      await globalThis.firebaseAuth.signOut();
       console.log('Logout successful');
     } catch (error) {
       console.error('Logout error:', error);

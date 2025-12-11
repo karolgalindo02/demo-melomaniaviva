@@ -1,20 +1,31 @@
-// Song Recognition with AudD API
+// Song Recognition with SongFinder API
 
 class SongRecognition {
   constructor() {
-    this.apiToken = '3d537ee48a618868bddb503097db1f60';
+    this.apiKey = '6fcd89c844msh6e359553be7efb7p16abfajsn29e45e46a046';
+    this.apiHost = 'songfinder-file-recognition.p.rapidapi.com';
     this.isRecording = false;
     this.mediaRecorder = null;
     this.audioChunks = [];
     this.stream = null;
-    this.recordingDuration = 10000; // 10 seconds
+    this.recordingDuration = 10000;
     this.recordingTimer = null;
   }
 
   async startRecognition() {
     try {
+      console.log('Iniciando reconocimiento...');
+      
       // Request microphone access
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+      
+      console.log('Micrófono accedido correctamente');
       
       // Show recording modal
       this.showRecordingModal();
@@ -36,17 +47,20 @@ class SongRecognition {
       this.mediaRecorder.start();
       this.isRecording = true;
       
+      console.log('Grabación iniciada');
+      
       // Update UI
       this.updateRecordingUI();
       
       // Auto-stop after duration
       this.recordingTimer = setTimeout(() => {
+        console.log('Tiempo de grabación terminado');
         this.stopRecording();
       }, this.recordingDuration);
       
     } catch (error) {
       console.error('Error accessing microphone:', error);
-      showError('No se pudo acceder al micrófono. Por favor, permite el acceso.');
+      showToast('No se pudo acceder al micrófono. Por favor, permite el acceso.', 'error');
       this.closeModal();
     }
   }
@@ -72,59 +86,59 @@ class SongRecognition {
       // Show processing state
       this.showProcessingUI();
       
-      // Create audio blob
+      // Create audio blob directamente
       const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
       
-      // Convert to base64
-      const base64Audio = await this.blobToBase64(audioBlob);
+      console.log('Audio blob size:', audioBlob.size, 'bytes');
       
-      // Send to AudD API
-      await this.recognizeSong(base64Audio);
+      // Send to backend
+      await this.recognizeSong(audioBlob);
       
     } catch (error) {
       console.error('Error processing audio:', error);
-      showError('Error al procesar el audio');
+      showToast('Error al procesar el audio', 'error');
       this.closeModal();
     }
   }
 
-  async recognizeSong(base64Audio) {
+  async recognizeSong(audioBlob) {
     try {
+      console.log('Enviando a SongFinder API...');
+      
+      // ✅ Usar FormData en lugar de octet-stream
       const formData = new FormData();
+      formData.append('file', audioBlob, 'recording.webm');
       
-      // Convert base64 back to blob for FormData
-      const audioBlob = await fetch(base64Audio).then(r => r.blob());
-      formData.append('audio', audioBlob, 'recording.webm');
-      formData.append('return', 'apple_music,spotify');
-      formData.append('api_token', this.apiToken);
-      
-      const response = await fetch('https://api.audd.io/', {
+      const response = await fetch('https://songfinder-file-recognition.p.rapidapi.com/api/rapidapi/recognize/file?startTime=0', {
         method: 'POST',
+        headers: {
+          'x-rapidapi-key': this.apiKey,
+          'x-rapidapi-host': this.apiHost
+          // NO incluir Content-Type - FormData lo hace automáticamente
+        },
         body: formData
       });
       
       const result = await response.json();
       
-      if (result.status === 'success' && result.result) {
+      console.log('Respuesta SongFinder:', result);
+      
+      if (result.success && result.result) {
         this.showResults(result.result);
+      } else if (result.error) {
+        console.error('SongFinder Error:', result.error);
+        showToast(`Error: ${result.error}`, 'error');
+        this.showNoResults();
       } else {
+        showToast('No se pudo identificar la canción', 'error');
         this.showNoResults();
       }
       
     } catch (error) {
       console.error('Error recognizing song:', error);
-      showError('Error al identificar la canción');
+      showToast('Error al identificar la canción', 'error');
       this.closeModal();
     }
-  }
-
-  blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
   }
 
   showRecordingModal() {
@@ -148,6 +162,7 @@ class SongRecognition {
           </div>
           <h3 class="text-2xl font-bold mb-2">Escuchando...</h3>
           <p class="text-gray-400 mb-6">Reproduciendo la canción cerca del micrófono</p>
+          <p class="text-sm text-gray-500 mb-4">Se detendrá automáticamente en 10 segundos</p>
           <div class="flex justify-center gap-4">
             <button onclick="songRecognition.stopRecording()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-semibold transition">
               <i class="fa fa-stop mr-2"></i>Detener
@@ -176,8 +191,10 @@ class SongRecognition {
   showResults(result) {
     const content = document.getElementById('recognitionContent');
     if (content) {
-      const spotifyLink = result.spotify?.external_urls?.spotify || '#';
-      const appleMusicLink = result.apple_music?.url || '#';
+      const title = result.title || result.song || 'Desconocido';
+      const artist = result.artist || result.artists?.[0] || 'Artista desconocido';
+      const album = result.album || 'Desconocido';
+      const image = result.image || result.artwork || 'https://via.placeholder.com/150';
       
       content.innerHTML = `
         <div class="py-6">
@@ -190,26 +207,24 @@ class SongRecognition {
           
           <div class="bg-gray-800 rounded-lg p-6 mb-6">
             <div class="flex items-start gap-4">
-              ${result.spotify?.album?.images?.[0]?.url ? `
-                <img src="${result.spotify.album.images[0].url}" alt="Album" class="w-24 h-24 rounded-lg shadow-lg flex-shrink-0">
-              ` : ''}
+              <img src="${image}" alt="Album" class="w-24 h-24 rounded-lg shadow-lg flex-shrink-0" onerror="this.src='https://via.placeholder.com/150'">
               <div class="flex-1 min-w-0">
-                <h4 class="text-xl font-bold text-white mb-1">${result.title}</h4>
-                <p class="text-lg text-gray-300 mb-2">${result.artist}</p>
-                <p class="text-sm text-gray-400">${result.album || 'Desconocido'}</p>
+                <h4 class="text-xl font-bold text-white mb-1">${title}</h4>
+                <p class="text-lg text-gray-300 mb-2">${artist}</p>
+                <p class="text-sm text-gray-400">${album}</p>
                 ${result.release_date ? `<p class="text-sm text-gray-500 mt-1">${result.release_date}</p>` : ''}
               </div>
             </div>
           </div>
           
           <div class="flex flex-col gap-3 mb-4">
-            ${spotifyLink !== '#' ? `
-              <a href="${spotifyLink}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
+            ${result.spotify_url ? `
+              <a href="${result.spotify_url}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
                 <i class="fa fa-spotify mr-2"></i>Abrir en Spotify
               </a>
             ` : ''}
-            ${appleMusicLink !== '#' ? `
-              <a href="${appleMusicLink}" target="_blank" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
+            ${result.apple_music_url ? `
+              <a href="${result.apple_music_url}" target="_blank" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
                 <i class="fa fa-music mr-2"></i>Abrir en Apple Music
               </a>
             ` : ''}
@@ -219,7 +234,7 @@ class SongRecognition {
             <button onclick="songRecognition.startRecognition()" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition">
               <i class="fa fa-microphone mr-2"></i>Buscar otra
             </button>
-        
+      
           </div>
         </div>
       `;
@@ -259,9 +274,10 @@ class SongRecognition {
   }
 }
 
-// Initialize song recognition
+// Initialize song recognition GLOBALLY
 let songRecognition;
 document.addEventListener('DOMContentLoaded', () => {
   songRecognition = new SongRecognition();
   window.songRecognition = songRecognition;
+  console.log('✅ SongRecognition initialized with SongFinder API');
 });

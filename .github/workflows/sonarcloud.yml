@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-      - master
-      - develop
+      - dev
+      - dev-api
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
       
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.sonar-melomania-viva }}

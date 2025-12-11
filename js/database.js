@@ -2,7 +2,7 @@
 
 class DatabaseService {
   constructor() {
-    this.db = window.firebaseDB;
+    this.db = globalThis.firebaseDB;
   }
 
   // Validation helper
@@ -20,7 +20,7 @@ class DatabaseService {
 
   sanitizeInput(input) {
     if (typeof input !== 'string') return input;
-    return input.trim().replace(/[<>]/g, '');
+    return input.trim().replaceAll(/[<>]/g, '');
   }
 
   // ============ BANDS ============

@@ -1,8 +1,8 @@
 // Hamburger Menu Controller
 
 class HamburgerMenu {
+  isOpen = false;
   constructor() {
-    this.isOpen = false;
     this.setupEventListeners();
   }
 
@@ -77,5 +77,5 @@ class HamburgerMenu {
 let hamburgerMenu;
 document.addEventListener("DOMContentLoaded", () => {
   hamburgerMenu = new HamburgerMenu();
-  window.hamburgerMenu = hamburgerMenu;
+  globalThis.hamburgerMenu = hamburgerMenu;
 });
