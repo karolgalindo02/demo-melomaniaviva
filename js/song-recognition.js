@@ -1,15 +1,16 @@
-// Song Recognition with SongFinder API
+// Song Recognition with Shazam API
 
 class SongRecognition {
   constructor() {
-    this.apiKey = '6fcd89c844msh6e359553be7efb7p16abfajsn29e45e46a046';
-    this.apiHost = 'songfinder-file-recognition.p.rapidapi.com';
+    this.shazamToken = window.config.SHAZAM_API_TOKEN;
+    this.shazamApiUrl = 'https://shazam-api.com/api/recognize';
     this.isRecording = false;
     this.mediaRecorder = null;
     this.audioChunks = [];
     this.stream = null;
-    this.recordingDuration = 10000;
+    this.recordingDuration = 20000;
     this.recordingTimer = null;
+    this.proxyUrl = 'https://corsproxy./?';
   }
 
   async startRecognition() {
@@ -32,8 +33,19 @@ class SongRecognition {
       
       // Start recording
       this.audioChunks = [];
-      this.mediaRecorder = new MediaRecorder(this.stream);
+      // Intentar usar formato MP3/MP4 si está disponible
+      let mimeType = 'audio/webm';
+      if (MediaRecorder.isTypeSupported('audio/mp4')) {
+        mimeType = 'audio/mp4';
+      } else if (MediaRecorder.isTypeSupported('audio/mpeg')) {
+        mimeType = 'audio/mpeg';
+      } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+        mimeType = 'audio/wav';
+      }
       
+      console.log('Formato de grabación:', mimeType);
+      this.mediaRecorder = new MediaRecorder(this.stream, { mimeType });
+
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
           this.audioChunks.push(event.data);
@@ -80,67 +92,218 @@ class SongRecognition {
       }
     }
   }
-
-  async processAudio() {
-    try {
-      // Show processing state
-      this.showProcessingUI();
-      
-      // Create audio blob directamente
-      const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
-      
-      console.log('Audio blob size:', audioBlob.size, 'bytes');
-      
-      // Send to backend
-      await this.recognizeSong(audioBlob);
-      
-    } catch (error) {
-      console.error('Error processing audio:', error);
-      showToast('Error al procesar el audio', 'error');
-      this.closeModal();
+async cleanupTempFile(audioUrl) {
+  try {
+    // Extraer el nombre del archivo de la URL
+    const url = new URL(audioUrl);
+    const pathname = decodeURIComponent(url.pathname);
+    
+    // Buscar el path del archivo en Firebase Storage
+    const match = pathname.match(/o\/(.+?)\?/);
+    if (match && match[1]) {
+      const filePath = match[1];
+      const storageRef = globalThis.firebaseStorage.ref(filePath);
+      await storageRef.delete();
+      console.log('Archivo temporal eliminado:', filePath);
     }
+  } catch (error) {
+    console.warn('No se pudo eliminar archivo temporal:', error);
   }
-
-  async recognizeSong(audioBlob) {
+}
+  async processAudio() {
+  try {
+    this.showProcessingUI();
+    
+    const mimeType = this.mediaRecorder.mimeType;
+    const audioBlob = new Blob(this.audioChunks, { type: mimeType });
+    
+    console.log('Audio blob type:', audioBlob.type);
+    
+    // Step 1: Upload audio to temporary storage
+    const audioUrl = await this.uploadToTempStorage(audioBlob);
+    
+    if (!audioUrl) {
+      throw new Error('No se pudo subir el audio');
+    }
+    
+    console.log('Audio subido a:', audioUrl);
+    
+    // Step 2: Send to Shazam API
+    const result = await this.recognizeSong(audioUrl);
+    
+    // Step 3: Limpiar archivo temporal después de procesar
+    setTimeout(() => this.cleanupTempFile(audioUrl), 5000);
+    
+  } catch (error) {
+    console.error('Error processing audio:', error);
+    showToast('Error al procesar el audio: ' + error.message, 'error');
+    this.closeModal();
+  }
+}
+async uploadToTempStorage(audioBlob) {
     try {
-      console.log('Enviando a SongFinder API...');
+      console.log('Subiendo audio a Firebase Storage...');
       
-      // ✅ Usar FormData en lugar de octet-stream
-      const formData = new FormData();
-      formData.append('file', audioBlob, 'recording.webm');
+      // Verificar que Firebase Storage esté disponible
+      if (!globalThis.firebaseStorage) {
+        throw new Error('Firebase Storage no está inicializado');
+      }
       
-      const response = await fetch('https://songfinder-file-recognition.p.rapidapi.com/api/rapidapi/recognize/file?startTime=0', {
-        method: 'POST',
-        headers: {
-          'x-rapidapi-key': this.apiKey,
-          'x-rapidapi-host': this.apiHost
-          // NO incluir Content-Type - FormData lo hace automáticamente
-        },
-        body: formData
+      // Crear referencia única para el archivo
+      const timestamp = Date.now();
+      let extension = 'webm';
+      const contentType = audioBlob.type;
+      
+      if (contentType.includes('mp4')) {
+        extension = 'mp4';
+      } else if (contentType.includes('mpeg') || contentType.includes('mp3')) {
+        extension = 'mp3';
+      } else if (contentType.includes('wav')) {
+        extension = 'wav';
+      }
+      
+      const fileName = `song-recognition/recording_${timestamp}.${extension}`;
+      const storageRef = globalThis.firebaseStorage.ref(fileName);
+      
+      console.log('Subiendo a:', fileName, 'con tipo:', contentType);
+      
+      // Subir el archivo
+      const uploadTask = await storageRef.put(audioBlob, {
+        contentType: contentType
       });
       
-      const result = await response.json();
+      console.log('Archivo subido exitosamente');
       
-      console.log('Respuesta SongFinder:', result);
+      // Obtener URL de descarga pública
+      const downloadURL = await uploadTask.ref.getDownloadURL();
       
-      if (result.success && result.result) {
-        this.showResults(result.result);
-      } else if (result.error) {
-        console.error('SongFinder Error:', result.error);
-        showToast(`Error: ${result.error}`, 'error');
+      console.log('URL de descarga:', downloadURL);
+      
+      return downloadURL;
+      
+    } catch (error) {
+      console.error('Error uploading to temp storage:', error);
+
+      console.error('Error uploading to Firebase Storage:', error);
+      throw new Error('No se pudo subir el audio: ' + error.message);
+      }
+    }
+  
+  async recognizeSong(audioUrl) {
+    try {
+      console.log('Enviando a Shazam API...');
+
+      // Step 1: Enviar URL del audio a Shazam API
+      const recognizeResponse = await fetch(`${this.proxyUrl}${encodeURIComponent(this.shazamApiUrl)}`, {
+        method: 'POST',
+        headers: {
+      'Authorization': `Bearer ${this.shazamToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          url: audioUrl
+        })
+      });
+      
+      const recognizeResult = await recognizeResponse.json();
+      
+      console.log('Respuesta Shazam (Step 1):', recognizeResult);
+      
+      // Step 2: Obtener resultados desde la URL proporcionada
+      if (recognizeResult.results) {
+        const fullResultsUrl = `https://shazam-api.com${recognizeResult.results}`;
+      console.log('URL completa para resultados:', fullResultsUrl);
+      await this.pollForResults(recognizeResult.results);
+
+        const resultResponse = await fetch(`${proxyUrl}${encodeURIComponent(recognizeResult.results)}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.shazamToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+      const finalResult = await resultResponse.json();
+      
+      console.log('Respuesta Shazam (Step 2 - Resultados):', finalResult);
+      
+      // Verificar si se identificó la canción
+        if (finalResult.track) {
+          this.showResults(finalResult.track);
+        } else if (finalResult.matches && finalResult.matches.length > 0) {
+          this.showResults(finalResult.matches[0]);
+        } else {
+          console.log('No se encontraron coincidencias');
+          this.showNoResults();
+        }
+        
+      } else if (recognizeResult.error) {
+        console.error('Shazam Error:', recognizeResult.error);
+        showToast(`Error: ${recognizeResult.error}`, 'error');
         this.showNoResults();
       } else {
-        showToast('No se pudo identificar la canción', 'error');
+        console.error('No se recibió result_url de Shazam');
+        showToast('Error al procesar con Shazam API', 'error');
         this.showNoResults();
       }
       
     } catch (error) {
       console.error('Error recognizing song:', error);
-      showToast('Error al identificar la canción', 'error');
+      showToast('Error al identificar la canción: ' + error.message, 'error');
       this.closeModal();
     }
   }
+async pollForResults(resultsPath) {
+  const maxAttempts = 10;
+  const delay = 2000;
 
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await new Promise(resolve => setTimeout(resolve, delay));
+    this.showProcessingUI(`Analizando... (Intento ${attempt}/${maxAttempts})`);
+
+    try {
+      const fullResultsUrl = `https://shazam-api.com${resultsPath}`;
+      
+      const pollResponse = await fetch(fullResultsUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.shazamToken}`,
+          'Accept': 'application/json'
+        }
+      });
+      
+      // Verificar si la respuesta es JSON
+      const contentType = pollResponse.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await pollResponse.text();
+        console.log(`Respuesta no JSON (intento ${attempt}):`, text.substring(0, 200));
+        continue;
+      }
+      
+      const pollResult = await pollResponse.json();
+      console.log(`Poll Result (Intento ${attempt}):`, pollResult);
+
+      if (pollResult.status === 'completed') {
+        if (pollResult.track) {
+          this.showResults(pollResult.track);
+        } else if (pollResult.matches && pollResult.matches.length > 0) {
+          this.showResults(pollResult.matches[0]);
+        } else {
+          this.showNoResults();
+        }
+        return;
+      }
+
+      
+    } catch (error) {
+      console.error(`Error de Polling (intento ${attempt}):`, error.message);
+      
+    }
+  }
+
+
+  this.showErrorUI('Tiempo de espera agotado. Intenta de nuevo.');
+}
   showRecordingModal() {
     const modal = document.getElementById('songRecognitionModal');
     if (modal) {
@@ -187,15 +350,43 @@ class SongRecognition {
       `;
     }
   }
-
+showErrorUI(message) {
+  const content = document.getElementById('recognitionContent');
+  if (content) {
+    content.innerHTML = `
+      <div class="text-center py-8">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-red-600 flex items-center justify-center">
+          <i class="fa fa-exclamation-triangle text-white text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">Error</h3>
+        <p class="text-gray-400 mb-6">${message}</p>
+        <div class="flex flex-col gap-3">
+          <button onclick="songRecognition.startRecognition()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+            <i class="fa fa-microphone mr-2"></i>Intentar de nuevo
+          </button>
+          <button onclick="songRecognition.closeModal()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    `;
+  }
+}
   showResults(result) {
     const content = document.getElementById('recognitionContent');
     if (content) {
-      const title = result.title || result.song || 'Desconocido';
-      const artist = result.artist || result.artists?.[0] || 'Artista desconocido';
-      const album = result.album || 'Desconocido';
-      const image = result.image || result.artwork || 'https://via.placeholder.com/150';
+      // Adaptar a la estructura de respuesta de Shazam API
+      const title = result.title || result.heading?.title || result.share?.subject || 'Desconocido';
+      const artist = result.subtitle || result.heading?.subtitle || 
+      (result.artists ? result.artists[0]?.name : '') || 'Artista desconocido';
+      const album = result.sections?.[0]?.metadata?.find(m => m.title === 'Album')?.text || 'Desconocido';
+      const image = result.images?.coverart || result.images?.background || 
+                    result.share?.image || 'https://via.placeholder.com/150';
       
+      // URLs de streaming
+      const spotifyUrl = result.hub?.providers?.find(p => p.type === 'SPOTIFY')?.actions?.[0]?.uri || '';
+      const appleMusicUrl = result.url || result.hub?.options?.find(o => o.providername === 'applemusic')?.actions?.[0]?.uri || '';
+
       content.innerHTML = `
         <div class="py-6">
           <div class="text-center mb-6">
@@ -212,19 +403,18 @@ class SongRecognition {
                 <h4 class="text-xl font-bold text-white mb-1">${title}</h4>
                 <p class="text-lg text-gray-300 mb-2">${artist}</p>
                 <p class="text-sm text-gray-400">${album}</p>
-                ${result.release_date ? `<p class="text-sm text-gray-500 mt-1">${result.release_date}</p>` : ''}
-              </div>
+                </div>
             </div>
           </div>
           
           <div class="flex flex-col gap-3 mb-4">
-            ${result.spotify_url ? `
-              <a href="${result.spotify_url}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
+           ${spotifyUrl ? `
+              <a href=\"${spotifyUrl}\" target=\"_blank\" class=\"bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center\">
                 <i class="fa fa-spotify mr-2"></i>Abrir en Spotify
               </a>
             ` : ''}
-            ${result.apple_music_url ? `
-              <a href="${result.apple_music_url}" target="_blank" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
+            ${appleMusicUrl ? `
+              <a href=\"${appleMusicUrl}\" target=\"_blank\" class=\"bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center\">
                 <i class="fa fa-music mr-2"></i>Abrir en Apple Music
               </a>
             ` : ''}
@@ -276,8 +466,17 @@ class SongRecognition {
 
 // Initialize song recognition GLOBALLY
 let songRecognition;
+// Wait for Firebase to be ready before initializing
+function initSongRecognition() {
+  if (globalThis.firebaseStorage) {
+    songRecognition = new SongRecognition();
+    window.songRecognition = songRecognition;
+    console.log('✅ SongRecognition initialized with Shazam API and Firebase Storage');
+  } else {
+    console.log('⏳ Esperando Firebase Storage...');
+    setTimeout(initSongRecognition, 100);
+  }
+}
 document.addEventListener('DOMContentLoaded', () => {
-  songRecognition = new SongRecognition();
-  window.songRecognition = songRecognition;
-  console.log('✅ SongRecognition initialized with SongFinder API');
+  initSongRecognition();
 });
