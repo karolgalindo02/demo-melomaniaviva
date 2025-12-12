@@ -2,7 +2,7 @@
 
 class SongRecognition {
   constructor() {
-    this.shazamToken = window.config.SHAZAM_API_TOKEN;
+    this.shazamToken = 'JExXAjWRovnYhbMEb5jlLujz5ZBeTEtsAC3WAyIyrbO7QoPtLEnklU6tbIE5CZiQ';
     this.shazamApiUrl = 'https://shazam-api.com/api/recognize';
     this.isRecording = false;
     this.mediaRecorder = null;
@@ -10,7 +10,7 @@ class SongRecognition {
     this.stream = null;
     this.recordingDuration = 20000;
     this.recordingTimer = null;
-    this.proxyUrl = 'https://corsproxy./?';
+    this.proxyUrl = 'https://corsproxy.io/?';
   }
 
   async startRecognition() {
@@ -190,119 +190,203 @@ async uploadToTempStorage(audioBlob) {
     }
   
   async recognizeSong(audioUrl) {
-    try {
-      console.log('Enviando a Shazam API...');
+  try {
+    console.log('Enviando a Shazam API...');
 
-      // Step 1: Enviar URL del audio a Shazam API
-      const recognizeResponse = await fetch(`${this.proxyUrl}${encodeURIComponent(this.shazamApiUrl)}`, {
-        method: 'POST',
-        headers: {
-      'Authorization': `Bearer ${this.shazamToken}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          url: audioUrl
-        })
-      });
-      
-      const recognizeResult = await recognizeResponse.json();
-      
-      console.log('Respuesta Shazam (Step 1):', recognizeResult);
-      
-      // Step 2: Obtener resultados desde la URL proporcionada
-      if (recognizeResult.results) {
-        const fullResultsUrl = `https://shazam-api.com${recognizeResult.results}`;
+    // Step 1: Enviar URL del audio a Shazam API
+    const recognizeResponse = await fetch(`${this.proxyUrl}${encodeURIComponent(this.shazamApiUrl)}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.shazamToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        url: audioUrl
+      })
+    });
+    
+    const recognizeResult = await recognizeResponse.json();
+    console.log('Respuesta Shazam (Step 1):', recognizeResult);
+    
+    // Step 2: Obtener resultados desde la URL proporcionada
+    if (recognizeResult.results) {
+      const fullResultsUrl = `https://shazam-api.com${recognizeResult.results}`;
       console.log('URL completa para resultados:', fullResultsUrl);
+      
+      // SOLO haz el polling, NO hagas una segunda petición
       await this.pollForResults(recognizeResult.results);
-
-        const resultResponse = await fetch(`${proxyUrl}${encodeURIComponent(recognizeResult.results)}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.shazamToken}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-      const finalResult = await resultResponse.json();
       
-      console.log('Respuesta Shazam (Step 2 - Resultados):', finalResult);
-      
-      // Verificar si se identificó la canción
-        if (finalResult.track) {
-          this.showResults(finalResult.track);
-        } else if (finalResult.matches && finalResult.matches.length > 0) {
-          this.showResults(finalResult.matches[0]);
-        } else {
-          console.log('No se encontraron coincidencias');
-          this.showNoResults();
-        }
-        
-      } else if (recognizeResult.error) {
-        console.error('Shazam Error:', recognizeResult.error);
-        showToast(`Error: ${recognizeResult.error}`, 'error');
-        this.showNoResults();
-      } else {
-        console.error('No se recibió result_url de Shazam');
-        showToast('Error al procesar con Shazam API', 'error');
-        this.showNoResults();
-      }
-      
-    } catch (error) {
-      console.error('Error recognizing song:', error);
-      showToast('Error al identificar la canción: ' + error.message, 'error');
-      this.closeModal();
+    } else if (recognizeResult.error) {
+      console.error('Shazam Error:', recognizeResult.error);
+      showToast(`Error: ${recognizeResult.error}`, 'error');
+      this.showNoResults();
+    } else {
+      console.error('No se recibió result_url de Shazam');
+      showToast('Error al procesar con Shazam API', 'error');
+      this.showNoResults();
     }
+    
+  } catch (error) {
+    console.error('Error recognizing song:', error);
+    showToast('Error al identificar la canción: ' + error.message, 'error');
+    this.closeModal();
   }
+}
 async pollForResults(resultsPath) {
-  const maxAttempts = 10;
+  const maxAttempts = 8;
   const delay = 2000;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     await new Promise(resolve => setTimeout(resolve, delay));
-    this.showProcessingUI(`Analizando... (Intento ${attempt}/${maxAttempts})`);
+    this.showProcessingUI(`Analizando... (${attempt}/${maxAttempts})`);
 
     try {
       const fullResultsUrl = `https://shazam-api.com${resultsPath}`;
+      const proxyPollUrl = `${this.proxyUrl}${encodeURIComponent(fullResultsUrl)}`;
       
-      const pollResponse = await fetch(fullResultsUrl, {
-        method: 'GET',
+      // Intenta con POST directamente (ya sabes que funciona)
+      const pollResponse = await fetch(proxyPollUrl, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.shazamToken}`,
+          'Content-Type': 'application/json',
           'Accept': 'application/json'
         }
       });
       
-      // Verificar si la respuesta es JSON
-      const contentType = pollResponse.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        const text = await pollResponse.text();
-        console.log(`Respuesta no JSON (intento ${attempt}):`, text.substring(0, 200));
-        continue;
+      if (pollResponse.ok) {
+        const pollResult = await pollResponse.json();
+        const success = this.processPollResult(pollResult, attempt);
+        if (success) return;
+      } else {
+        console.log(`Intento ${attempt} falló con status: ${pollResponse.status}`);
       }
-      
-      const pollResult = await pollResponse.json();
-      console.log(`Poll Result (Intento ${attempt}):`, pollResult);
-
-      if (pollResult.status === 'completed') {
-        if (pollResult.track) {
-          this.showResults(pollResult.track);
-        } else if (pollResult.matches && pollResult.matches.length > 0) {
-          this.showResults(pollResult.matches[0]);
-        } else {
-          this.showNoResults();
-        }
-        return;
-      }
-
       
     } catch (error) {
-      console.error(`Error de Polling (intento ${attempt}):`, error.message);
-      
+      console.error(`Error en intento ${attempt}:`, error.message);
     }
   }
 
+  this.showErrorUI('Tiempo de espera agotado para obtener resultados');
+}
+// Método para obtener detalles de la canción usando tagid
+async fetchTrackDetails(tagId) {
+  try {
+    console.log('Obteniendo detalles para tag:', tagId);
+    
+    // Usa el endpoint de tracks de Shazam API
+    const trackDetailsUrl = `https://shazam-api.com/api/tracks/${tagId}`;
+    const proxyUrl = `${this.proxyUrl}${encodeURIComponent(trackDetailsUrl)}`;
+    
+    const response = await fetch(proxyUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${this.shazamToken}`,
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const trackDetails = await response.json();
+      console.log('Detalles del track:', trackDetails);
+      
+      if (trackDetails.track) {
+        this.showResults(trackDetails.track);
+      } else {
+        this.showResults(trackDetails);
+      }
+    } else {
+      throw new Error(`HTTP ${response.status} al obtener detalles`);
+    }
+    
+  } catch (error) {
+    console.error('Error obteniendo detalles:', error);
+    this.showErrorUI('No se pudieron obtener detalles completos de la canción');
+  }
+}
 
-  this.showErrorUI('Tiempo de espera agotado. Intenta de nuevo.');
+// Método para intentar mostrar el resultado con diferentes estructuras
+tryToShowResult(resultData) {
+  // Verifica diferentes estructuras posibles
+  if (resultData.title || resultData.heading?.title) {
+    // Parece tener datos de canción directamente
+    this.showResults(resultData);
+  } else if (resultData.song || resultData.artist) {
+    // Otra estructura común
+    const formattedResult = {
+      title: resultData.song || 'Desconocido',
+      subtitle: resultData.artist || 'Artista desconocido',
+      // Agrega otros campos si existen
+      images: resultData.images || {}
+    };
+    this.showResults(formattedResult);
+  } else {
+    console.log('Estructura no reconocida, mostrando datos crudos:', resultData);
+    // Muestra al menos algo de información
+    this.showFallbackResult(resultData);
+  }
+}
+
+// Método fallback para mostrar información básica
+showFallbackResult(resultData) {
+  const content = document.getElementById('recognitionContent');
+  if (content) {
+    const info = JSON.stringify(resultData, null, 2).substring(0, 500);
+    content.innerHTML = `
+      <div class="text-center py-8">
+        <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-yellow-600 flex items-center justify-center">
+          <i class="fa fa-info text-white text-4xl"></i>
+        </div>
+        <h3 class="text-2xl font-bold mb-2">Canción Identificada</h3>
+        <p class="text-gray-400 mb-4">(Formato de datos no estándar)</p>
+        <div class="bg-gray-800 rounded-lg p-4 mb-6 text-left">
+          <pre class="text-xs text-gray-300 overflow-auto max-h-40">${info}</pre>
+        </div>
+        <button onclick="songRecognition.startRecognition()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+          <i class="fa fa-microphone mr-2"></i>Buscar otra
+        </button>
+      </div>
+    `;
+  }
+}
+// Método auxiliar para procesar el resultado del polling
+processPollResult(pollResult, attempt) {
+  console.log(`Poll Result (Intento ${attempt}):`, pollResult);
+
+  if (pollResult.status === 'completed') {
+    // Extraer la canción de la estructura de respuesta POST
+    if (pollResult.results && pollResult.results.length > 0) {
+      // La estructura parece ser: pollResult.results[0]
+      const resultData = pollResult.results[0];
+      
+      // Verifica la estructura exacta
+      console.log('Datos del resultado:', resultData);
+      
+      // Posiblemente necesitas extraer el track de resultData
+      if (resultData.track) {
+        this.showResults(resultData.track);
+      } else if (resultData.matches && resultData.matches.length > 0) {
+        this.showResults(resultData.matches[0]);
+      } else if (resultData.tagid) {
+        // Si solo tienes tagid, necesitas otra petición para obtener detalles
+        console.log('TAG ID encontrado:', resultData.tagid);
+        this.fetchTrackDetails(resultData.tagid);
+      } else {
+        // Intenta mostrar el resultado directamente si tiene información de canción
+        this.tryToShowResult(resultData);
+      }
+      
+    } else if (pollResult.track) {
+      // Si el track está en el nivel superior
+      this.showResults(pollResult.track);
+    } else {
+      console.log('Resultados completados pero sin estructura reconocible');
+      this.showNoResults();
+    }
+    return true;
+  }
+  
+  return false;
 }
   showRecordingModal() {
     const modal = document.getElementById('songRecognitionModal');
