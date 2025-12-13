@@ -323,7 +323,9 @@ async uploadBannerImage(file) {
         // Actualizar UI inmediatamente
         const bannerEl = document.getElementById('currentBannerImage');
         if (bannerEl) {
-          bannerEl.style.backgroundImage = `url("${imageUrl.replaceAll('"', String.raw``)}")`;
+          // SOLUCIÓN: Separar la lógica de escape
+          const escapedImageUrl = imageUrl.replaceAll('"', String.raw`\"`);
+          bannerEl.style.backgroundImage = `url("${escapedImageUrl}")`;
           bannerEl.style.backgroundSize = 'cover';
           bannerEl.style.backgroundPosition = 'center';
         }
@@ -349,10 +351,7 @@ async uploadBannerImage(file) {
     console.error('Error uploading banner:', error);
     showError('Error al subir el banner: ' + error.message, 'bannerUploadStatus');
   }
-}
-          
-
-
+}      
 
   async loadUserLikes() {
     try {
