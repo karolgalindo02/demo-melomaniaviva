@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadRecentAlbums();
   loadNews();
   loadVisitorStats();
+  loadEPs(),
   
   // Setup event listeners
   setupEventListeners();
@@ -259,6 +260,116 @@ async function loadVisitorStats() {
   }
 }
 
+// ============ LOAD EPS ============
+
+async function loadEPs() {
+  const container = document.getElementById('epsContainer');
+  if (!container) return;
+  
+  showLoading('epsContainer');
+  
+  try {
+    if (!window.firebaseDB) {
+      console.log('Firebase not initialized, using placeholder data');
+      container.innerHTML = `
+        <li class=\"p-4 hover:bg-gray-50 transition\">
+          <div class=\"flex gap-3\">
+            <img src=\"/img/buha-album1.jpg\" alt=\"cansancio-hastio\" class=\"w-16 h-16 rounded\">
+            <div class=\"flex-1\">
+              <p class=\"font-semibold\">Cansancio Hastio</p>
+              <p class=\"text-sm text-gray-600\">BUHA 2030</p>
+              <p class=\"text-xs text-gray-500 mt-1\">Configura Firebase para reproducir</p>
+            </div>
+          </div>
+        </li>
+      `;
+      return;
+    }
+    
+    const eps = await dbService.getEPs(10);
+    
+    if (eps.length === 0) {
+      container.innerHTML = '<li class=\"p-4\"><p class=\"text-gray-500 text-center\">No hay EPs disponibles</p></li>';
+      return;
+    }
+    
+    let html = '';
+    eps.forEach(ep => {
+      html += `
+        <li class=\"p-4 hover:bg-gray-50 transition fade-in\">
+          <div class=\"flex gap-3\">
+            <img
+              src=\"${ep.albumArtUrl || '/img/music-heart.png'}\"
+              alt=\"${ep.songName}\"
+              class=\"w-16 h-16 rounded flex-shrink-0\"
+            />
+            <div class=\"flex-1\">
+              <p class=\"font-semibold\">${ep.songName}</p>
+              <p class=\"text-sm text-gray-600\">${ep.bandName}</p>
+              <div class=\"flex gap-2 mt-2\">
+                <button
+                  onclick=\"addEpToPlaylist('${ep.id}')\"
+                  class=\"bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs transition\"
+                  title=\"Agregar a playlist\"
+                >
+                  <i class=\"fa fa-plus\"></i>
+                </button>
+                <button
+                  onclick=\"playEp('${ep.id}')\"
+                  class=\"bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs transition\"
+                  title=\"Reproducir\"
+                >
+                  <i class=\"fa fa-play\"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </li>
+      `;
+    });
+    
+    container.innerHTML = html;
+  } catch (error) {
+    console.error('Error loading EPs:', error);
+    container.innerHTML = '<li class=\"p-4\"><p class=\"text-red-500 text-center\">Error al cargar EPs</p></li>';
+  }
+}
+
+// Function to add EP to playlist
+async function addEpToPlaylist(epId) {
+  try {
+    const trackData = await dbService.getEPTrackData(epId);
+    
+    if (window.musicPlayer && trackData.url) {
+      window.musicPlayer.addToPlaylist(trackData);
+      showToast('EP agregado a la playlist', 'success');
+    } else {
+      showError('No se pudo cargar el EP');
+    }
+  } catch (error) {
+    console.error('Error adding EP to playlist:', error);
+    showError('Error al cargar el EP');
+  }
+}
+
+// Function to play EP immediately
+async function playEp(epId) {
+  try {
+    const trackData = await dbService.getEPTrackData(epId);
+    
+    if (window.musicPlayer && trackData.url) {
+      window.musicPlayer.addToPlaylist(trackData);
+      window.musicPlayer.playTrack(window.musicPlayer.playlist.length - 1);
+      showToast('Reproduciendo EP', 'success');
+    } else {
+      showError('No se pudo reproducir el EP');
+    }
+  } catch (error) {
+    console.error('Error playing EP:', error);
+    showError('Error al reproducir el EP');
+  }
+}
+
 // ============ EVENT LISTENERS ============
 
 function setupEventListeners() {
@@ -486,3 +597,5 @@ globalThis.viewNewsDetail = viewNewsDetail;
 globalThis.toggleBlogSection = toggleBlogSection;
 globalThis.addBandTrackToPlaylist = addBandTrackToPlaylist;
 globalThis.playBandTrack = playBandTrack;
+globalThis.addEpToPlaylist = addEpToPlaylist;
+globalThis.playEp = playEp;

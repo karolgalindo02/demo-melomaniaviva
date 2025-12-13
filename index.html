@@ -124,9 +124,6 @@
           ><i class="fa fa-instagram"></i
         ></a>
         <a href="#" class="hover:text-purple-400 transition"
-          ><i class="fa fa-snapchat"></i
-        ></a>
-        <a href="#" class="hover:text-purple-400 transition"
           ><i class="fa fa-github"></i
         ></a>
         <a href="#" class="hover:text-purple-400 transition"
@@ -763,69 +760,12 @@
             <div class="bg-black text-white p-4">
               <h4 class="text-xl font-bold">Escucha EP's</h4>
             </div>
-            <ul class="divide-y divide-gray-200">
-              <li class="p-4 hover:bg-gray-50 transition">
-                <div class="flex gap-3">
-                  <img
-                    src="/img/buha-album1.jpg"
-                    alt="buha2030-cansansio-hastio"
-                    class="w-16 h-16 rounded"
-                  />
-                  <div class="flex-1">
-                    <p class="font-semibold">Cansancio Hastio</p>
-                    <p class="text-sm text-gray-600">BUHA 2030</p>
-                    <audio controls class="w-full mt-2">
-                      <source src="/music/cansancio-hastio.mp3" type="audio/mp3" />
-                    </audio>
-                  </div>
-                </div>
-              </li>
-              <li class="p-4 hover:bg-gray-50 transition">
-                <div class="flex gap-3">
-                  <img
-                    src="/img/lhmf-album4.jpg"
-                    alt="lhmf-zoey101"
-                    class="w-16 h-16 rounded"
-                  />
-                  <div class="flex-1">
-                    <p class="font-semibold">Zoey 101</p>
-                    <p class="text-sm text-gray-600">La Hermanastra más Fea</p>
-                    <audio controls class="w-full mt-2">
-                      <source src="/music/zoey101.mp3" type="audio/mp3" />
-                    </audio>
-                  </div>
-                </div>
-              </li>
-              <li class="p-4 hover:bg-gray-50 transition">
-                <div class="flex gap-3">
-                  <img
-                    src="/img/encarta-album1.jpeg"
-                    alt="encarta98-diciembre"
-                    class="w-16 h-16 rounded"
-                  />
-                  <div class="flex-1">
-                    <p class="font-semibold">Diciembre</p>
-                    <p class="text-sm text-gray-600">Encarta 98</p>
-                    <audio controls class="w-full mt-2">
-                      <source src="/music/diciembre.mp3" type="audio/mp3" />
-                    </audio>
-                  </div>
-                </div>
-              </li>
-              <li class="p-4 hover:bg-gray-50 transition">
-                <div class="flex gap-3">
-                  <img
-                    src="/img/mi-pasion-es-el-futbol.jpg"
-                    alt="kidchen-mpeef"
-                    class="w-16 h-16 rounded sepia"
-                  />
-                  <div class="flex-1">
-                    <p class="font-semibold">Mi pasion es el futbol</p>
-                    <p class="text-sm text-gray-600">Kidchen</p>
-                    <audio controls class="w-full mt-2">
-                      <source src="/music/kidchen.mp3" type="audio/mp3" />
-                    </audio>
-                  </div>
+            <ul id="epsContainer" class="divide-y divide-gray-200">
+              <!-- EPs will be loaded dynamically from Firebase -->
+              <li class="p-4">
+                <div class="text-center py-4">
+                  <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                  <p class="text-gray-500 text-sm mt-2">Cargando EPs...</p>
                 </div>
               </li>
             </ul>
