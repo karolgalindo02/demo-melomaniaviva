@@ -12,7 +12,7 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-let app, auth, db;
+let app, auth, db, sg;
 
 try {
   // Check if Firebase is loaded
@@ -22,6 +22,7 @@ try {
     app = firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
+    sg = firebase.storage();
     console.log('Firebase initialized successfully');
   }
 } catch (error) {
@@ -29,6 +30,7 @@ try {
 }
 
 // Export for use in other modules
-window.firebaseApp = app;
-window.firebaseAuth = auth;
-window.firebaseDB = db;
+globalThis.firebaseApp = app;
+globalThis.firebaseAuth = auth;
+globalThis.firebaseDB = db;
+globalThis.firebaseStorage = sg;

@@ -8,7 +8,7 @@ class MusicPlayer {
     this.isPlaying = false;
     this.isRepeat = false;
     this.isShuffle = false;
-    this.volume = 1.0;
+    this.volume = 1;
     this.isMobile = window.innerWidth < 768;
     
     this.initializePlayer();
@@ -219,7 +219,7 @@ class MusicPlayer {
     this.updatePlaylistUI();
 
     const player = document.getElementById('globalMusicPlayer');
-    if (player && player.classList.contains('hidden')) {
+    if (player?.classList.contains('hidden')) {
       player.classList.remove('hidden');
       this.updateBottomPadding();
     }
@@ -284,26 +284,24 @@ class MusicPlayer {
     this.updatePlaylistUI();
   }
 
-  togglePlay() {
-    if (this.playlist.length === 0) {
-      showToast('Agrega canciones a la playlist primero', 'warning');
-      return;
-    }
-    
-    if (this.isPlaying) {
-      this.audio.pause();
-      this.isPlaying = false;
-      document.getElementById('btnPlayPause').innerHTML = '<i class="fa fa-play"></i>';
-    } else {
-      if (!this.audio.src) {
-        this.playTrack(0);
-      } else {
-        this.audio.play();
-        this.isPlaying = true;
-        document.getElementById('btnPlayPause').innerHTML = '<i class="fa fa-pause"></i>';
-      }
-    }
+togglePlay() {
+  if (this.playlist.length === 0) {
+    showToast('Agrega canciones a la playlist primero', 'warning');
+    return;
   }
+  
+  if (this.isPlaying) {
+    this.audio.pause();
+    this.isPlaying = false;
+    document.getElementById('btnPlayPause').innerHTML = '<i class="fa fa-play"></i>';
+  } else if (this.audio.src) {
+    this.audio.play();
+    this.isPlaying = true;
+    document.getElementById('btnPlayPause').innerHTML = '<i class="fa fa-pause"></i>';
+  } else {
+    this.playTrack(0);
+  }
+}
 
   playNext() {
     if (this.playlist.length === 0) return;
@@ -428,7 +426,7 @@ class MusicPlayer {
   }
 
   formatTime(seconds) {
-    if (isNaN(seconds)) return '0:00';
+    if (Number.isNaN(seconds)) return '0:00';
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -445,5 +443,5 @@ class MusicPlayer {
 let musicPlayer;
 document.addEventListener('DOMContentLoaded', () => {
   musicPlayer = new MusicPlayer();
-  window.musicPlayer = musicPlayer;
+  globalThis.musicPlayer = musicPlayer;
 });

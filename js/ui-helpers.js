@@ -84,7 +84,7 @@ function timeAgo(date) {
     date = date.toDate();
   }
   
-  const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+  const seconds = Math.floor((Date.now() - new Date(date)) / 1000);
   
   let interval = seconds / 31536000;
   if (interval > 1) return Math.floor(interval) + ' años';
@@ -169,7 +169,7 @@ function initLazyLoading() {
       if (entry.isIntersecting) {
         const img = entry.target;
         img.src = img.dataset.src;
-        img.removeAttribute('data-src');
+        delete img.dataset.src;
         observer.unobserve(img);
       }
     });

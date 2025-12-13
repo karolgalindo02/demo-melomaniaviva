@@ -44,9 +44,77 @@
   </head>
 
   <body class="bg-gray-50 text-gray-900">
+     <!-- Mobile Hamburger Button -->
+    <button id="hamburgerBtn" class="md:hidden fixed top-4 left-4 z-50 inline-flex w-12 h-12 text-slate-800 bg-white text-center items-center justify-center rounded shadow-[0_1px_0_theme(colors.slate.950/.04),0_1px_2px_theme(colors.slate.950/.12),inset_0_-2px_0_theme(colors.slate.950/.04)] hover:shadow-[0_1px_0_theme(colors.slate.950/.04),0_4px_8px_theme(colors.slate.950/.12),inset_0_-2px_0_theme(colors.slate.950/.04)] transition" aria-pressed="false">
+      <span class="sr-only">Menu</span>
+      <svg class="w-6 h-6 fill-current pointer-events-none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+        <rect class="origin-center -translate-y-[5px] translate-x-[7px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-[[aria-pressed=true]]:translate-x-0 group-[[aria-pressed=true]]:translate-y-0 group-[[aria-pressed=true]]:rotate-[315deg]" y="7" width="9" height="2" rx="1"></rect>
+        <rect class="origin-center transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.8)] group-[[aria-pressed=true]]:rotate-45" y="7" width="16" height="2" rx="1"></rect>
+        <rect class="origin-center translate-y-[5px] transition-all duration-300 ease-[cubic-bezier(.5,.85,.25,1.1)] group-[[aria-pressed=true]]:translate-y-0 group-[[aria-pressed=true]]:rotate-[135deg]" y="7" width="9" height="2" rx="1"></rect>
+      </svg>
+    </button>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="menuOverlay" class="hidden fixed inset-0 bg-black bg-opacity-70 z-40 md:hidden"></div>
+
+    <!-- Mobile Slide Menu -->
+    <div id="mobileMenu" class="fixed top-0 right-0 h-full w-64 bg-black text-white z-50 transform translate-x-full transition-transform duration-300 ease-in-out md:hidden shadow-2xl">
+      <div class="flex flex-col h-full">
+        <!-- Menu Header -->
+        <div class="p-6 border-b border-gray-800">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-bold">Menú</h2>
+            <button id="closeMenuBtn" class="text-gray-400 hover:text-white text-2xl">
+              <i class="fa fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Menu Items -->
+        <nav class="flex-1 p-6" aria-label="Menu principal">
+          <ul class="space-y-4">
+            <li>
+              <a href="/index.html" class="flex items-center gap-3 text-lg hover:text-purple-400 transition py-2">
+                <i class="fa fa-home w-6"></i>
+                <span>Inicio</span>
+              </a>
+            </li>
+            <li>
+              <a href="/albums.html" class="flex items-center gap-3 text-lg hover:text-purple-400 transition py-2">
+                <i class="fa fa-music w-6"></i>
+                <span>Álbums</span>
+              </a>
+            </li>
+            <li>
+              <a href="/profile.html" class="flex items-center gap-3 text-lg hover:text-purple-400 transition py-2">
+                <i class="fa fa-user-circle w-6"></i>
+                <span>Perfil</span>
+              </a>
+            </li>
+            <li class="pt-4 border-t border-gray-800">
+              <button id="mobileLoginBtn" onclick="toggleModal('loginModal'); hamburgerMenu.close()" class="flex items-center gap-3 text-lg hover:text-purple-400 transition py-2 w-full text-left">
+                <i class="fa fa-sign-in w-6"></i>
+                <span>Ingresar</span>
+              </button>
+            </li>
+            <li id="mobileLogoutContainer" class="hidden">
+              <button onclick="authService.logout(); hamburgerMenu.close()" class="flex items-center gap-3 text-lg hover:text-red-400 transition py-2 w-full text-left">
+                <i class="fa fa-sign-out w-6"></i>
+                <span>Salir</span>
+              </button>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Menu Footer -->
+        <div class="p-6 border-t border-gray-800">
+          <p class="text-sm text-gray-400">Melomania Viva! © 2025</p>
+        </div>
+      </div>
+    </div>
     <!-- Social Media Navigation Bar -->
     <nav
-      class="bg-black text-white hidden md:flex items-center justify-between px-4 py-2"
+      class="bg-black text-white hidden md:flex items-center justify-between px-4 py-2" aria-label="Redes sociales"
     >
       <div class="flex items-center space-x-2">
         <a href="#" class="hover:text-purple-400 transition"
@@ -54,9 +122,6 @@
         ></a>
         <a href="#" class="hover:text-purple-400 transition"
           ><i class="fa fa-instagram"></i
-        ></a>
-        <a href="#" class="hover:text-purple-400 transition"
-          ><i class="fa fa-snapchat"></i
         ></a>
         <a href="#" class="hover:text-purple-400 transition"
           ><i class="fa fa-github"></i
@@ -122,6 +187,7 @@
               <span class="bg-purple-600 px-6 py-3 rounded-lg">Reseñas</span>
             </h1>
             <button
+              id="heroBtnLogin"
               onclick="toggleModal('loginModal')"
               class="bg-white hover:bg-gray-100 text-black font-semibold px-8 py-3 rounded-lg transition"
             >
@@ -219,7 +285,7 @@
               <!-- Music Player Section -->
               <div id="demo1" class="hidden mt-6 pt-6 border-t border-gray-700">
                 <div class="flex flex-col md:flex-row gap-4">
-                  <img src="/img/d-album2.jpg" class="w-32 h-32 rounded-lg" />
+                  <img src="/img/d-album2.jpg" alt="desespero-recaer-distimia" class="w-32 h-32 rounded-lg" />
                   <div class="flex-1">
                     <h4 class="text-xl font-bold">
                       Desespero <span class="text-gray-400">- Recaer</span>
@@ -337,7 +403,7 @@
 
               <div id="demo2" class="hidden mt-6 pt-6 border-t border-gray-400">
                 <div class="flex flex-col md:flex-row gap-4">
-                  <img src="/img/album4.jpg" class="w-32 h-32 rounded-lg" />
+                  <img src="/img/album4.jpg" alt="techo-de-astros-y-truenos-fenomenos-margarita" class="w-32 h-32 rounded-lg" />
                   <div class="flex-1">
                     <h4 class="text-xl font-bold">
                       Techo de Astros y Truenos: Fenómenos
@@ -453,7 +519,7 @@
 
               <div id="demo3" class="hidden mt-6 pt-6 border-t border-gray-700">
                 <div class="flex flex-col md:flex-row gap-4">
-                  <img src="/img/n-album3.jpeg" class="w-32 h-32 rounded-lg" />
+                  <img src="/img/n-album3.jpeg" alt="bailando-triste-los-fumadores" class="w-32 h-32 rounded-lg" />
                   <div class="flex-1">
                     <h4 class="text-xl font-bold">
                       Bailando Triste
@@ -569,6 +635,7 @@
               <div id="demo4" class="hidden mt-6 pt-6 border-t border-gray-400">
                 <div class="flex flex-col md:flex-row gap-4">
                   <img
+                    alt="diferencias-creativas-irreconciliables-lhmf"
                     src="/img/lhmf-album3.jpg"
                     class="w-32 h-32 rounded-lg"
                   />
@@ -693,69 +760,12 @@
             <div class="bg-black text-white p-4">
               <h4 class="text-xl font-bold">Escucha EP's</h4>
             </div>
-            <ul class="divide-y divide-gray-200">
-              <li class="p-4 hover:bg-gray-50 transition">
-                <div class="flex gap-3">
-                  <img
-                    src="/img/buha-album1.jpg"
-                    alt="buha2030-cansansio-hastio"
-                    class="w-16 h-16 rounded"
-                  />
-                  <div class="flex-1">
-                    <p class="font-semibold">Cansancio Hastio</p>
-                    <p class="text-sm text-gray-600">BUHA 2030</p>
-                    <audio controls class="w-full mt-2">
-                      <source src="/music/cansancio-hastio.mp3" type="audio/mp3" />
-                    </audio>
-                  </div>
-                </div>
-              </li>
-              <li class="p-4 hover:bg-gray-50 transition">
-                <div class="flex gap-3">
-                  <img
-                    src="/img/lhmf-album4.jpg"
-                    alt="lhmf-zoey101"
-                    class="w-16 h-16 rounded"
-                  />
-                  <div class="flex-1">
-                    <p class="font-semibold">Zoey 101</p>
-                    <p class="text-sm text-gray-600">La Hermanastra más Fea</p>
-                    <audio controls class="w-full mt-2">
-                      <source src="/music/zoey101.mp3" type="audio/mp3" />
-                    </audio>
-                  </div>
-                </div>
-              </li>
-              <li class="p-4 hover:bg-gray-50 transition">
-                <div class="flex gap-3">
-                  <img
-                    src="/img/encarta-album1.jpeg"
-                    alt="encarta98-diciembre"
-                    class="w-16 h-16 rounded"
-                  />
-                  <div class="flex-1">
-                    <p class="font-semibold">Diciembre</p>
-                    <p class="text-sm text-gray-600">Encarta 98</p>
-                    <audio controls class="w-full mt-2">
-                      <source src="/music/diciembre.mp3" type="audio/mp3" />
-                    </audio>
-                  </div>
-                </div>
-              </li>
-              <li class="p-4 hover:bg-gray-50 transition">
-                <div class="flex gap-3">
-                  <img
-                    src="/img/mi-pasion-es-el-futbol.jpg"
-                    alt="kidchen-mpeef"
-                    class="w-16 h-16 rounded sepia"
-                  />
-                  <div class="flex-1">
-                    <p class="font-semibold">Mi pasion es el futbol</p>
-                    <p class="text-sm text-gray-600">Kidchen</p>
-                    <audio controls class="w-full mt-2">
-                      <source src="/music/kidchen.mp3" type="audio/mp3" />
-                    </audio>
-                  </div>
+            <ul id="epsContainer" class="divide-y divide-gray-200">
+              <!-- EPs will be loaded dynamically from Firebase -->
+              <li class="p-4">
+                <div class="text-center py-4">
+                  <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                  <p class="text-gray-500 text-sm mt-2">Cargando EPs...</p>
                 </div>
               </li>
             </ul>
@@ -1089,18 +1099,51 @@
         </p>
       </div>
     </div>
+<!-- Song Recognition Modal -->
+    <div id="songRecognitionModal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="bg-gray-900 text-white rounded-xl shadow-2xl max-w-md w-full relative">
+        <!-- Botón cerrar X -->
+        <button onclick="songRecognition.closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl z-10">
+          <i class="fa fa-times"></i>
+        </button>
+        
+        <div class="p-8">
+          <h2 class="text-2xl font-bold mb-6 text-center">Identificar Canción</h2>
+          <div id="recognitionContent">
+            <div class="text-center py-6">
+              <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+                <i class="fa fa-microphone text-white text-4xl"></i>
+              </div>
+              <p class="text-gray-300 mb-6">Presiona el botón para comenzar a escuchar</p>
+              <button onclick="songRecognition.startRecognition()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-semibold transition">
+                <i class="fa fa-microphone mr-2"></i>Comenzar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- Floating Song Recognition Button -->
+    <button onclick="document.getElementById('songRecognitionModal').classList.remove('hidden')" class="fixed bottom-28 right-4 md:bottom-32 md:right-6 w-14 h-14 md:w-16 md:h-16 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-full shadow-2xl flex items-center justify-center text-white z-40 transition-all duration-300 hover:scale-110" title="Identificar canción">
+      <i class="fa fa-music text-xl md:text-2xl"></i>
+    </button>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <!-- Application Scripts -->
     <script src="/js/firebase-config.js"></script>
+    <script src="/js/song-recognition.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/database.js"></script>
     <script src="/js/ui-helpers.js"></script>
     <script src="/js/music-player.js"></script>
+    <script src="js/hamburguer-menu.js"></script>
     <script src="/js/main.js"></script>
+
+    
   </body>
 </html>

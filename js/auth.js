@@ -1,15 +1,15 @@
 // Authentication Module
 
 class AuthService {
+  currentUser = null;
   constructor() {
-    this.currentUser = null;
     this.initAuthListener();
   }
 
   // Listen for auth state changes
   initAuthListener() {
-    if (window.firebaseAuth) {
-      window.firebaseAuth.onAuthStateChanged((user) => {
+    if (globalThis.firebaseAuth) {
+      globalThis.firebaseAuth.onAuthStateChanged((user) => {
         this.currentUser = user;
         this.updateUI(user);
       });
@@ -20,9 +20,11 @@ class AuthService {
   updateUI(user) {
     const loginBtn = document.getElementById('loginBtn');
     const userInfo = document.getElementById('userInfo');
+    const heroBtnLogin = document.getElementById('heroBtnLogin');
     
     if (user) {
       if (loginBtn) loginBtn.style.display = 'none';
+      if (heroBtnLogin) heroBtnLogin.style.display = 'none';
       if (userInfo) {
         userInfo.style.display = 'block';
         userInfo.innerHTML = `
@@ -35,6 +37,7 @@ class AuthService {
       }
     } else {
       if (loginBtn) loginBtn.style.display = 'block';
+      if (heroBtnLogin) heroBtnLogin.style.display = 'block';
       if (userInfo) userInfo.style.display = 'none';
     }
   }
@@ -42,7 +45,7 @@ class AuthService {
   // Email/Password Login
   async loginWithEmail(email, password) {
     try {
-      const result = await window.firebaseAuth.signInWithEmailAndPassword(email, password);
+      const result = await globalThis.firebaseAuth.signInWithEmailAndPassword(email, password);
       console.log('Login successful:', result.user);
       return result.user;
     } catch (error) {
@@ -54,7 +57,7 @@ class AuthService {
   // Email/Password Registration
   async registerWithEmail(email, password, displayName) {
     try {
-      const result = await window.firebaseAuth.createUserWithEmailAndPassword(email, password);
+      const result = await globalThis.firebaseAuth.createUserWithEmailAndPassword(email, password);
       
       // Update profile with display name
       await result.user.updateProfile({
@@ -72,30 +75,11 @@ class AuthService {
     }
   }
 
-  // Instagram OAuth Login
-  async loginWithInstagram() {
-    try {
-      // TODO: Configure Instagram OAuth provider in Firebase Console
-      // Firebase Console > Authentication > Sign-in method > Add provider > Instagram
-      const provider = new firebase.auth.OAuthProvider('instagram.com');
-      
-      const result = await window.firebaseAuth.signInWithPopup(provider);
-      await this.createUserDocument(result.user);
-      
-      console.log('Instagram login successful:', result.user);
-      return result.user;
-    } catch (error) {
-      console.error('Instagram login error:', error);
-      alert('Instagram login no está configurado aún. Por favor agrega las credenciales de Instagram OAuth en Firebase Console.');
-      throw error;
-    }
-  }
-
   // Google OAuth Login
   async loginWithGoogle() {
     try {
       const provider = new firebase.auth.GoogleAuthProvider();
-      const result = await window.firebaseAuth.signInWithPopup(provider);
+      const result = await globalThis.firebaseAuth.signInWithPopup(provider);
       await this.createUserDocument(result.user);
       
       console.log('Google login successful:', result.user);
@@ -108,12 +92,16 @@ class AuthService {
 
   // Create user document in Firestore
   async createUserDocument(user) {
-    if (!window.firebaseDB) return;
+    if (!globalThis.firebaseDB) return;
     
-    const userRef = window.firebaseDB.collection('users').doc(user.uid);
+    const userRef = globalThis.firebaseDB.collection('users').doc(user.uid);
     const doc = await userRef.get();
     
-    if (!doc.exists) {
+    if (doc.exists) {
+      await userRef.update({
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
       await userRef.set({
         uid: user.uid,
         email: user.email,
@@ -122,17 +110,13 @@ class AuthService {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
       });
-    } else {
-      await userRef.update({
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-      });
     }
   }
 
   // Logout
   async logout() {
     try {
-      await window.firebaseAuth.signOut();
+      await globalThis.firebaseAuth.signOut();
       console.log('Logout successful');
     } catch (error) {
       console.error('Logout error:', error);

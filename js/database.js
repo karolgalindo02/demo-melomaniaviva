@@ -2,7 +2,7 @@
 
 class DatabaseService {
   constructor() {
-    this.db = window.firebaseDB;
+    this.db = globalThis.firebaseDB;
   }
 
   // Validation helper
@@ -20,7 +20,7 @@ class DatabaseService {
 
   sanitizeInput(input) {
     if (typeof input !== 'string') return input;
-    return input.trim().replace(/[<>]/g, '');
+    return input.trim().replaceAll(/[<>]/g, '');
   }
 
   // ============ BANDS ============
@@ -168,6 +168,7 @@ async getRecentAlbums(limit = 100) {  // Aumenta el límite a 100 (o más si nec
       throw error;
     }
   }
+
 
   // ============ COMMENTS ============
   
@@ -332,6 +333,79 @@ async getRecentAlbums(limit = 100) {  // Aumenta el límite a 100 (o más si nec
       return docRef.id;
     } catch (error) {
       console.error('Error adding news:', error);
+      throw error;
+    }
+  }
+
+  // ============ EPS ============
+  
+  async getEPs(limit = 20) {
+    try {
+      const snapshot = await this.db.collection('eps')
+        .orderBy('createdAt', 'desc')
+        .limit(limit)
+        .get();
+      
+      return snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.error('Error getting EPs:', error);
+      return [];
+    }
+  }
+
+  async getEPById(epId) {
+    try {
+      const doc = await this.db.collection('eps').doc(epId).get();
+      if (doc.exists) {
+        return { id: doc.id, ...doc.data() };
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting EP:', error);
+      return null;
+    }
+  }
+
+  async addEP(epData) {
+    try {
+      this.validateRequired(epData.songName, 'Nombre de la canción');
+      this.validateRequired(epData.bandName, 'Nombre de la banda');
+      this.validateRequired(epData.songUrl, 'URL de la canción');
+      
+      const sanitized = {
+        songName: this.sanitizeInput(epData.songName),
+        bandName: this.sanitizeInput(epData.bandName),
+        songUrl: epData.songUrl,
+        albumArtUrl: epData.albumArtUrl || '/img/music-heart.png',
+      };
+      
+      const docRef = await this.db.collection('eps').add(sanitized);
+      return docRef.id;
+    } catch (error) {
+      console.error('Error adding EP:', error);
+      throw error;
+    }
+  }
+
+  async getEPTrackData(epId) {
+    try {
+      const ep = await this.getEPById(epId);
+      
+      if (!ep) {
+        throw new Error(`EP con ID ${epId} no encontrado`);
+      }
+      
+      return {
+        title: ep.songName || 'Canción sin título',
+        artist: ep.bandName || 'Artista desconocido',
+        url: ep.songUrl,
+        albumArt: ep.albumArtUrl || '/img/music-heart.png'
+      };
+    } catch (error) {
+      console.error(`Error getting EP track data for ${epId}:`, error);
       throw error;
     }
   }

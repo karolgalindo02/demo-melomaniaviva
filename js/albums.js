@@ -1,15 +1,13 @@
 // Albums Management
 
 class AlbumManager {
-  constructor() {
-    this.currentAlbum = null;
-  }
+  currentAlbum = null;
 
   async loadAlbum(albumId) {
     try {
       showLoading('albumContent');
       
-      const albumDoc = await window.firebaseDB.collection('albums').doc(albumId).get();
+      const albumDoc = await globalThis.firebaseDB.collection('albums').doc(albumId).get();
       
       if (!albumDoc.exists) {
         showError('Álbum no encontrado');
@@ -20,7 +18,7 @@ class AlbumManager {
       this.renderAlbum();
       
       // Increment views
-      await window.firebaseDB.collection('albums').doc(albumId).update({
+      await globalThis.firebaseDB.collection('albums').doc(albumId).update({
         views: firebase.firestore.FieldValue.increment(1)
       });
     } catch (error) {
@@ -47,20 +45,6 @@ getTrackData(index) {
         url: typeof track === 'string' ? `/music/song${index + 1}.mp3` : '', 
         albumArt: this.currentAlbum.coverImage
     };
-}
-
-
-playTrack(index) {
-    const trackData = this.getTrackData(index);
-    
-    window.musicPlayer.addToPlaylist(trackData);
-    window.musicPlayer.playTrack(window.musicPlayer.playlist.length - 1);
-}
-
-addTrackToPlaylist(index) {
-    const trackData = this.getTrackData(index);
-    
-    window.musicPlayer.addToPlaylist(trackData);
 }
   renderAlbum() {
     if (!this.currentAlbum) return;
@@ -165,8 +149,8 @@ addTrackToPlaylist(index) {
       albumArt: this.currentAlbum.coverImage
     };
     
-    window.musicPlayer.addToPlaylist(trackData);
-    window.musicPlayer.playTrack(window.musicPlayer.playlist.length - 1);
+    globalThis.musicPlayer.addToPlaylist(trackData);
+    globalThis.musicPlayer.playTrack(globalThis.musicPlayer.playlist.length - 1);
   }
 
   addTrackToPlaylist(index) {
@@ -178,7 +162,7 @@ addTrackToPlaylist(index) {
       albumArt: this.currentAlbum.coverImage
     };
     
-    window.musicPlayer.addToPlaylist(trackData);
+    globalThis.musicPlayer.addToPlaylist(trackData);
   }
 
   addAlbumToPlaylist() {
@@ -202,7 +186,7 @@ addTrackToPlaylist(index) {
       
       // Check if already liked
       const likeId = `${user.uid}_album_${this.currentAlbum.id}`;
-      const likeRef = window.firebaseDB.collection('likes').doc(likeId);
+      const likeRef = globalThis.firebaseDB.collection('likes').doc(likeId);
       const doc = await likeRef.get();
       
       const icon = document.getElementById('albumLikeIcon');
@@ -317,12 +301,12 @@ async function loadAllAlbums() {
 
 // Initialize album manager
 let albumManager;
-if (window.location.pathname.includes('album.html')) {
+if (globalThis.location.pathname.includes('album.html')) {
   document.addEventListener('DOMContentLoaded', () => {
     albumManager = new AlbumManager();
     
     // Get album ID from URL
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(globalThis.location.search);
     const albumId = urlParams.get('id');
     
     if (albumId) {
