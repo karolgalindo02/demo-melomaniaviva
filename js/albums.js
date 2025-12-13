@@ -1,9 +1,7 @@
 // Albums Management
 
 class AlbumManager {
-  constructor() {
-    this.currentAlbum = null;
-  }
+  currentAlbum = null;
 
   async loadAlbum(albumId) {
     try {
@@ -47,20 +45,6 @@ getTrackData(index) {
         url: typeof track === 'string' ? `/music/song${index + 1}.mp3` : '', 
         albumArt: this.currentAlbum.coverImage
     };
-}
-
-
-playTrack(index) {
-    const trackData = this.getTrackData(index);
-    
-    globalThis.musicPlayer.addToPlaylist(trackData);
-    globalThis.musicPlayer.playTrack(globalThis.musicPlayer.playlist.length - 1);
-}
-
-addTrackToPlaylist(index) {
-    const trackData = this.getTrackData(index);
-    
-    globalThis.musicPlayer.addToPlaylist(trackData);
 }
   renderAlbum() {
     if (!this.currentAlbum) return;

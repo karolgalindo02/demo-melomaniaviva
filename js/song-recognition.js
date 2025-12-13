@@ -15,18 +15,15 @@ class SongRecognition {
 
   async startRecognition() {
     try {
-      console.log('Iniciando reconocimiento...');
-      
       // Request microphone access
-      this.stream = await navigator.mediaDevices.getUserMedia({ 
+      this.stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           autoGainControl: true
         }
       });
-      
-      console.log('Micrófono accedido correctamente');
+
       
       // Show recording modal
       this.showRecordingModal();
@@ -43,7 +40,6 @@ class SongRecognition {
         mimeType = 'audio/wav';
       }
       
-      console.log('Formato de grabación:', mimeType);
       this.mediaRecorder = new MediaRecorder(this.stream, { mimeType });
 
       this.mediaRecorder.ondataavailable = (event) => {
@@ -58,15 +54,12 @@ class SongRecognition {
       
       this.mediaRecorder.start();
       this.isRecording = true;
-      
-      console.log('Grabación iniciada');
-      
+
       // Update UI
       this.updateRecordingUI();
       
       // Auto-stop after duration
       this.recordingTimer = setTimeout(() => {
-        console.log('Tiempo de grabación terminado');
         this.stopRecording();
       }, this.recordingDuration);
       
@@ -99,12 +92,11 @@ async cleanupTempFile(audioUrl) {
     const pathname = decodeURIComponent(url.pathname);
     
     // Buscar el path del archivo en Firebase Storage
-    const match = pathname.match(/o\/(.+?)\?/);
-    if (match && match[1]) {
+    const match = new RegExp(/o\/(.+?)\?/).exec(pathname);
+    if (match?.[1]) {
       const filePath = match[1];
       const storageRef = globalThis.firebaseStorage.ref(filePath);
       await storageRef.delete();
-      console.log('Archivo temporal eliminado:', filePath);
     }
   } catch (error) {
     console.warn('No se pudo eliminar archivo temporal:', error);
@@ -116,22 +108,14 @@ async cleanupTempFile(audioUrl) {
     
     const mimeType = this.mediaRecorder.mimeType;
     const audioBlob = new Blob(this.audioChunks, { type: mimeType });
-    
-    console.log('Audio blob type:', audioBlob.type);
-    
+
     // Step 1: Upload audio to temporary storage
     const audioUrl = await this.uploadToTempStorage(audioBlob);
     
     if (!audioUrl) {
       throw new Error('No se pudo subir el audio');
     }
-    
-    console.log('Audio subido a:', audioUrl);
-    
-    // Step 2: Send to Shazam API
-    const result = await this.recognizeSong(audioUrl);
-    
-    // Step 3: Limpiar archivo temporal después de procesar
+
     setTimeout(() => this.cleanupTempFile(audioUrl), 5000);
     
   } catch (error) {
@@ -164,20 +148,17 @@ async uploadToTempStorage(audioBlob) {
       
       const fileName = `song-recognition/recording_${timestamp}.${extension}`;
       const storageRef = globalThis.firebaseStorage.ref(fileName);
-      
-      console.log('Subiendo a:', fileName, 'con tipo:', contentType);
+
       
       // Subir el archivo
       const uploadTask = await storageRef.put(audioBlob, {
         contentType: contentType
       });
-      
-      console.log('Archivo subido exitosamente');
+
       
       // Obtener URL de descarga pública
       const downloadURL = await uploadTask.ref.getDownloadURL();
-      
-      console.log('URL de descarga:', downloadURL);
+
       
       return downloadURL;
       
@@ -191,8 +172,6 @@ async uploadToTempStorage(audioBlob) {
   
   async recognizeSong(audioUrl) {
   try {
-    console.log('Enviando a Shazam API...');
-
     // Step 1: Enviar URL del audio a Shazam API
     const recognizeResponse = await fetch(`${this.proxyUrl}${encodeURIComponent(this.shazamApiUrl)}`, {
       method: 'POST',
@@ -206,7 +185,6 @@ async uploadToTempStorage(audioBlob) {
     });
     
     const recognizeResult = await recognizeResponse.json();
-    console.log('Respuesta Shazam (Step 1):', recognizeResult);
     
     // Step 2: Obtener resultados desde la URL proporcionada
     if (recognizeResult.results) {
@@ -272,8 +250,7 @@ async pollForResults(resultsPath) {
 // Método para obtener detalles de la canción usando tagid
 async fetchTrackDetails(tagId) {
   try {
-    console.log('Obteniendo detalles para tag:', tagId);
-    
+
     // Usa el endpoint de tracks de Shazam API
     const trackDetailsUrl = `https://shazam-api.com/api/tracks/${tagId}`;
     const proxyUrl = `${this.proxyUrl}${encodeURIComponent(trackDetailsUrl)}`;
@@ -288,8 +265,7 @@ async fetchTrackDetails(tagId) {
     
     if (response.ok) {
       const trackDetails = await response.json();
-      console.log('Detalles del track:', trackDetails);
-      
+
       if (trackDetails.track) {
         this.showResults(trackDetails.track);
       } else {
@@ -321,8 +297,6 @@ tryToShowResult(resultData) {
     };
     this.showResults(formattedResult);
   } else {
-    console.log('Estructura no reconocida, mostrando datos crudos:', resultData);
-    // Muestra al menos algo de información
     this.showFallbackResult(resultData);
   }
 }
@@ -351,25 +325,18 @@ showFallbackResult(resultData) {
 }
 // Método auxiliar para procesar el resultado del polling
 processPollResult(pollResult, attempt) {
-  console.log(`Poll Result (Intento ${attempt}):`, pollResult);
 
   if (pollResult.status === 'completed') {
-    // Extraer la canción de la estructura de respuesta POST
+
     if (pollResult.results && pollResult.results.length > 0) {
-      // La estructura parece ser: pollResult.results[0]
+
       const resultData = pollResult.results[0];
-      
-      // Verifica la estructura exacta
-      console.log('Datos del resultado:', resultData);
-      
-      // Posiblemente necesitas extraer el track de resultData
+
       if (resultData.track) {
         this.showResults(resultData.track);
       } else if (resultData.matches && resultData.matches.length > 0) {
         this.showResults(resultData.matches[0]);
       } else if (resultData.tagid) {
-        // Si solo tienes tagid, necesitas otra petición para obtener detalles
-        console.log('TAG ID encontrado:', resultData.tagid);
         this.fetchTrackDetails(resultData.tagid);
       } else {
         // Intenta mostrar el resultado directamente si tiene información de canción
@@ -380,7 +347,6 @@ processPollResult(pollResult, attempt) {
       // Si el track está en el nivel superior
       this.showResults(pollResult.track);
     } else {
-      console.log('Resultados completados pero sin estructura reconocible');
       this.showNoResults();
     }
     return true;
@@ -493,12 +459,12 @@ showErrorUI(message) {
           
           <div class="flex flex-col gap-3 mb-4">
            ${spotifyUrl ? `
-              <a href=\"${spotifyUrl}\" target=\"_blank\" class=\"bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center\">
+              <a href="${spotifyUrl}" target="_blank" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
                 <i class="fa fa-spotify mr-2"></i>Abrir en Spotify
               </a>
             ` : ''}
             ${appleMusicUrl ? `
-              <a href=\"${appleMusicUrl}\" target=\"_blank\" class=\"bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center\">
+              <a href="${appleMusicUrl}" target="_blank" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition text-center">
                 <i class="fa fa-music mr-2"></i>Abrir en Apple Music
               </a>
             ` : ''}
@@ -554,10 +520,8 @@ let songRecognition;
 function initSongRecognition() {
   if (globalThis.firebaseStorage) {
     songRecognition = new SongRecognition();
-    window.songRecognition = songRecognition;
-    console.log('✅ SongRecognition initialized with Shazam API and Firebase Storage');
+    globalThis.songRecognition = songRecognition;
   } else {
-    console.log('⏳ Esperando Firebase Storage...');
     setTimeout(initSongRecognition, 100);
   }
 }

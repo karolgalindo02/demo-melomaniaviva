@@ -1,10 +1,9 @@
 // Profile Management
 class ProfileManager {
-  constructor() {
-    this.currentUser = null;
-    this.twoFactorEnabled = false;
-    this.isEditMode = false;
-  }
+    currentUser = null;
+    twoFactorEnabled = false;
+    isEditMode = false;
+  
 
   // Toggle between view and edit mode
   toggleEditMode() {
@@ -29,7 +28,7 @@ class ProfileManager {
   }
 
   async loadProfile() {
-    if (!window.firebaseAuth) {
+    if (!globalThis.firebaseAuth) {
       setTimeout(() => this.loadProfile(), 500);
       return;
     }
@@ -39,12 +38,12 @@ class ProfileManager {
       console.log('No user logged in, waiting...');
       setTimeout(() => {
         const retryUser = firebase.auth().currentUser;
-        if (!retryUser) {
-          alert('Por favor inicia sesión para ver tu perfil');
-          window.location.href = '/index.html';
-        } else {
+        if (retryUser) {
           this.currentUser = retryUser;
           this.continueLoadProfile();
+        } else {
+          alert('Por favor inicia sesión para ver tu perfil');
+          globalThis.location.href = '/index.html';
         }
       }, 1000);
       return;
@@ -56,7 +55,7 @@ class ProfileManager {
   
   async continueLoadProfile() {
     try {
-      if (!window.firebaseDB) {
+      if (!globalThis.firebaseDB) {
         console.warn('Firebase not initialized yet');
         this.populateProfileForm({
           displayName: this.currentUser.displayName || '',
@@ -66,7 +65,7 @@ class ProfileManager {
         return;
       }
       
-      const userDoc = await window.firebaseDB.collection('users').doc(this.currentUser.uid).get();
+      const userDoc = await globalThis.firebaseDB.collection('users').doc(this.currentUser.uid).get();
       
       if (userDoc.exists) {
         const userData = userDoc.data();
@@ -84,7 +83,7 @@ class ProfileManager {
           lastLogin: firebase.firestore.FieldValue.serverTimestamp()
         };
         
-        await window.firebaseDB.collection('users').doc(this.currentUser.uid).set(initialData);
+        await globalThis.firebaseDB.collection('users').doc(this.currentUser.uid).set(initialData);
         this.populateProfileForm(initialData);
         this.populateProfileView(initialData);
       }
@@ -135,48 +134,68 @@ class ProfileManager {
     }
   }
 
-  populateProfileView(userData) {
-    // Mostrar información en la sección de vista
-    if (document.getElementById('viewDisplayName')) {
-      document.getElementById('viewDisplayName').textContent = userData.displayName || 'Usuario';
+populateProfileView(userData) {
+  const elementMappings = [
+    {
+      id: 'viewDisplayName',
+      value: userData.displayName || 'Usuario',
+      isHtml: false
+    },
+    {
+      id: 'viewEmail',
+      value: userData.email || this.currentUser.email || '',
+      isHtml: false
+    },
+    {
+      id: 'viewLocation',
+      value: userData.location || 'No especificado',
+      isHtml: false
+    },
+    {
+      id: 'viewBio',
+      value: userData.bio || 'Sin biografía',
+      isHtml: false
+    },
+    {
+      id: 'viewWebsite',
+      value: userData.website,
+      isHtml: true,
+      transform: (value) => value
+        ? `<a href="${value}" target="_blank" class="text-purple-600 hover:text-purple-700">${value}</a>`
+        : 'No especificado'
     }
-    if (document.getElementById('viewEmail')) {
-      document.getElementById('viewEmail').textContent = userData.email || this.currentUser.email || '';
+  ];
+
+  // Procesar cada mapeo de elemento
+  elementMappings.forEach(mapping => {
+    const element = document.getElementById(mapping.id);
+    if (!element) return;
+
+    if (mapping.isHtml && mapping.transform) {
+      element.innerHTML = mapping.transform(mapping.value);
+    } else {
+      element.textContent = mapping.value;
     }
-    if (document.getElementById('viewLocation')) {
-      const locationEl = document.getElementById('viewLocation');
-      if (locationEl) {
-        locationEl.textContent = userData.location || 'No especificado';
-      }
+  });
+
+  // Actualizar elementos adicionales de forma separada
+  this.updateAdditionalDisplayElements(userData);
+}
+
+updateAdditionalDisplayElements(userData) {
+  const additionalElements = [
+    { id: 'displayName', value: userData.displayName || 'Usuario' },
+    { id: 'displayEmail', value: userData.email || this.currentUser.email || '' },
+    { id: 'navUserName', value: userData.displayName || 'Usuario' }
+  ];
+
+  additionalElements.forEach(item => {
+    const element = document.getElementById(item.id);
+    if (element) {
+      element.textContent = item.value;
     }
-    if (document.getElementById('viewBio')) {
-      const bioEl = document.getElementById('viewBio');
-      if (bioEl) {
-        bioEl.textContent = userData.bio || 'Sin biografía';
-      }
-    }
-    if (document.getElementById('viewWebsite')) {
-      const websiteEl = document.getElementById('viewWebsite');
-      if (websiteEl) {
-        if (userData.website) {
-          websiteEl.innerHTML = `<a href="${userData.website}" target="_blank" class="text-purple-600 hover:text-purple-700">${userData.website}</a>`;
-        } else {
-          websiteEl.textContent = 'No especificado';
-        }
-      }
-    }
-    
-    // Actualizar display names
-    if (document.getElementById('displayName')) {
-      document.getElementById('displayName').textContent = userData.displayName || 'Usuario';
-    }
-    if (document.getElementById('displayEmail')) {
-      document.getElementById('displayEmail').textContent = userData.email || this.currentUser.email || '';
-    }
-    if (document.getElementById('navUserName')) {
-      document.getElementById('navUserName').textContent = userData.displayName || 'Usuario';
-    }
-  }
+  });
+}
 
   async updateProfile(formData) {
     if (!this.currentUser) {
@@ -197,7 +216,7 @@ class ProfileManager {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       
-      await window.firebaseDB.collection('users').doc(this.currentUser.uid).set(updates, { merge: true });
+      await globalThis.firebaseDB.collection('users').doc(this.currentUser.uid).set(updates, { merge: true });
       
       await firebase.auth().currentUser.updateProfile({
         displayName: formData.name
@@ -246,7 +265,7 @@ class ProfileManager {
           }
           
           // Guardar en Firestore
-          await window.firebaseDB.collection('users').doc(this.currentUser.uid).set({
+          await globalThis.firebaseDB.collection('users').doc(this.currentUser.uid).set({
             photoURL: imageUrl
           }, { merge: true });
           
@@ -273,62 +292,71 @@ class ProfileManager {
     }
   }
 
-  async uploadBannerImage(file) {
-    if (!file) return;
+async uploadBannerImage(file) {
+  if (!file) return;
+  
+  try {
+    showLoading('bannerUploadStatus');
     
-    try {
-      showLoading('bannerUploadStatus');
-      
-      if (!file.type.startsWith('image/')) {
-        showError('Por favor selecciona una imagen válida', 'bannerUploadStatus');
-        return;
-      }
-      
-      if (file.size > 5 * 1024 * 1024) {
-        showError('La imagen debe ser menor a 5MB', 'bannerUploadStatus');
-        return;
-      }
-      
-      const reader = new FileReader();
-      
-      reader.onload = async (e) => {
-        try {
-          const imageUrl = e.target.result;
-          
-          // Actualizar UI inmediatamente
-          const bannerEl = document.getElementById('currentBannerImage');
-          if (bannerEl) {
-            bannerEl.style.backgroundImage = `url(${imageUrl})`;
-            bannerEl.style.backgroundSize = 'cover';
-            bannerEl.style.backgroundPosition = 'center';
-          }
-          
-          // Guardar en Firestore
-          await window.firebaseDB.collection('users').doc(this.currentUser.uid).update({
-            bannerImage: imageUrl
-          });
-          
-          showSuccess('Banner actualizado', 'bannerUploadStatus');
-        } catch (error) {
-          console.error('Error in reader.onload:', error);
-          showError('Error al procesar el banner: ' + error.message, 'bannerUploadStatus');
-        }
-      };
-      
-      reader.onerror = () => {
-        showError('Error al leer el archivo', 'bannerUploadStatus');
-      };
-      
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error('Error uploading banner:', error);
-      showError('Error al subir el banner: ' + error.message, 'bannerUploadStatus');
+    if (!file.type.startsWith('image/')) {
+      showError('Por favor selecciona una imagen válida', 'bannerUploadStatus');
+      return;
     }
+    
+    if (file.size > 5 * 1024 * 1024) {
+      showError('La imagen debe ser menor a 5MB', 'bannerUploadStatus');
+      return;
+    }
+    
+    const reader = new FileReader();
+    
+    reader.onload = async (e) => {
+      try {
+        // Verifica que sea una cadena válida
+        const result = e.target.result;
+        if (typeof result !== 'string') {
+          throw newError('Formato de imagen no válido');
+        }
+        
+        const imageUrl = result;
+        
+        // Actualizar UI inmediatamente
+        const bannerEl = document.getElementById('currentBannerImage');
+        if (bannerEl) {
+          bannerEl.style.backgroundImage = `url("${imageUrl.replaceAll('"', String.raw``)}")`;
+          bannerEl.style.backgroundSize = 'cover';
+          bannerEl.style.backgroundPosition = 'center';
+        }
+        
+        // Guardar en Firestore
+        await globalThis.firebaseDB.collection('users').doc(this.currentUser.uid).update({
+          bannerImage: imageUrl
+        });
+        
+        showSuccess('Banner actualizado', 'bannerUploadStatus');
+      } catch (error) {
+        console.error('Error in reader.onload:', error);
+        showError('Error al procesar el banner: ' + error.message, 'bannerUploadStatus');
+      }
+    };
+    
+    reader.onerror = () => {
+      showError('Error al leer el archivo', 'bannerUploadStatus');
+    };
+    
+    reader.readAsDataURL(file);
+  } catch (error) {
+    console.error('Error uploading banner:', error);
+    showError('Error al subir el banner: ' + error.message, 'bannerUploadStatus');
   }
+}
+          
+
+
 
   async loadUserLikes() {
     try {
-      const likes = await window.firebaseDB.collection('likes')
+      const likes = await globalThis.firebaseDB.collection('likes')
         .where('userId', '==', this.currentUser.uid)
         .get();
       
@@ -343,7 +371,7 @@ class ProfileManager {
       
       for (const doc of likes.docs) {
         const likeData = doc.data();
-        const bandDoc = await window.firebaseDB.collection('bands').doc(likeData.bandId).get();
+        const bandDoc = await globalThis.firebaseDB.collection('bands').doc(likeData.bandId).get();
         
         if (bandDoc.exists) {
           const band = bandDoc.data();
@@ -386,7 +414,7 @@ class ProfileManager {
       showToast('Autenticación de dos factores habilitada (demo)', 'success');
       this.twoFactorEnabled = true;
       
-      await window.firebaseDB.collection('users').doc(this.currentUser.uid).update({
+      await globalThis.firebaseDB.collection('users').doc(this.currentUser.uid).update({
         twoFactorEnabled: true
       });
       
@@ -402,7 +430,7 @@ class ProfileManager {
       showToast('Autenticación de dos factores deshabilitada', 'info');
       this.twoFactorEnabled = false;
       
-      await window.firebaseDB.collection('users').doc(this.currentUser.uid).update({
+      await globalThis.firebaseDB.collection('users').doc(this.currentUser.uid).update({
         twoFactorEnabled: false
       });
       
@@ -414,7 +442,7 @@ class ProfileManager {
   }
 
   checkTwoFactorStatus() {
-    window.firebaseDB.collection('users').doc(this.currentUser.uid).get()
+    globalThis.firebaseDB.collection('users').doc(this.currentUser.uid).get()
       .then(doc => {
         if (doc.exists) {
           this.twoFactorEnabled = doc.data().twoFactorEnabled || false;
@@ -445,7 +473,7 @@ class ProfileManager {
 
 // Initialize profile manager
 let profileManager;
-if (window.location.pathname.includes('profile.html')) {
+if (globalThis.location.pathname.includes('profile.html')) {
   document.addEventListener('DOMContentLoaded', () => {
     profileManager = new ProfileManager();
     profileManager.loadProfile();
